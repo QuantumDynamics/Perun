@@ -1,0 +1,4 @@
+[submodule "hardware/ChibiOS"]
+	path = hardware/ChibiOS
+	url = https://github.com/ChibiOS/ChibiOS-RT.git
+	branch = stable_2.6.x
