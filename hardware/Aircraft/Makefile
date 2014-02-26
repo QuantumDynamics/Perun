@@ -73,14 +73,15 @@ LDSCRIPT= $(PORTLD)/STM32F100xB.ld
 # setting.
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
-       $(TESTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(CHIBIOS)/os/various/syscalls.c \
        main.c \
-       drivers/engine.c
+       drivers/engine.c \
+       fc_nrf24l01.c \
+       fc_spi.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

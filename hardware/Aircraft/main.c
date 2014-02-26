@@ -1,25 +1,14 @@
-
-
 #include "ch.h"
 #include "hal.h"
 #include "stm32f10x.h"
 
 #include "drivers/engine.h"
+#include "fc_nrf24l01.h"
+#include "fc_spi.h"
 
-
-int main(void)
+void testEngine(void)
 {
 	int i;
-
-	halInit();
-	chSysInit();
-
-	/*
-	 * Initializes the PWM driver 3, re-routes the TIM3 outputs, programs the
-	 * pins as alternate functions.
-	 * Note, the AFIO access routes the TIM3 output pins on the PC6...PC9
-	 * where the LEDs are connected.
-	 */
 
 	engineInit();
 
@@ -49,3 +38,42 @@ int main(void)
 		chThdSleepSeconds(2);
 	}
 }
+
+int main(void)
+{
+	uint8_t cmd[1] =
+	{ 0 };
+	uint8_t result[1] =
+	{ 0 };
+
+	halInit();
+	chSysInit();
+
+	chThdSleepSeconds(1);
+
+	palSetPadMode(GPIOC, GPIOC_LED3, PAL_MODE_OUTPUT_PUSHPULL); palSetPadMode(GPIOC, GPIOC_LED4, PAL_MODE_OUTPUT_PUSHPULL);
+
+	palSetPad(GPIOC, GPIOC_LED3);
+
+//	AFIO->MAPR |= AFIO_MAPR_SPI1_REMAP;
+
+	SPIInit();
+
+	//NRFInit();
+
+	palClearPad(GPIOB, 4);
+
+	cmd[0] = 0x07;
+	SPIExchangeData(&NRF_SPI, cmd, result, 1);
+
+	if (result[0] == 0xE)
+	{
+		palSetPad(GPIOC, GPIOC_LED4);
+	}
+
+	while (1)
+	{
+		chThdYield();
+	}
+}
+
