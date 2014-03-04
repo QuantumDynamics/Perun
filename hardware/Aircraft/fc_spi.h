@@ -45,3 +45,5 @@ int SPISendData(SPIDriver *spip, uint8_t *tx, size_t size);
  */
 int SPIReceiveData(SPIDriver *spip, uint8_t *rx, size_t size); 
 
+int SPIExchangeDataI(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size);
+

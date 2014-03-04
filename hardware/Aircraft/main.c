@@ -3,8 +3,53 @@
 #include "stm32f10x.h"
 
 #include "drivers/engine.h"
-#include "fc_nrf24l01.h"
+#include "fc_nrf.h"
 #include "fc_spi.h"
+
+extern BinarySemaphore NRFSemIRQ;
+
+static void extcb1(EXTDriver *extp, expchannel_t channel) {
+  static VirtualTimer vt4;
+
+  (void)extp;
+  (void)channel;
+
+  palTogglePad(GPIOC, GPIOC_LED3);
+
+  chSysLockFromIsr();
+
+  chBSemSignalI(&NRFSemIRQ);
+
+  chSysUnlockFromIsr();
+}
+
+static const EXTConfig extcfg = {
+  {
+	{EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_FALLING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB, extcb1},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL},
+    {EXT_CH_MODE_DISABLED, NULL}
+  }
+};
 
 void testEngine(void)
 {
@@ -39,6 +84,8 @@ void testEngine(void)
 	}
 }
 
+static WORKING_AREA(myThreadWorkingArea, 128);
+
 int main(void)
 {
 	uint8_t cmd[1] =
@@ -53,23 +100,29 @@ int main(void)
 
 	palSetPadMode(GPIOC, GPIOC_LED3, PAL_MODE_OUTPUT_PUSHPULL); palSetPadMode(GPIOC, GPIOC_LED4, PAL_MODE_OUTPUT_PUSHPULL);
 
-	palSetPad(GPIOC, GPIOC_LED3);
+	//palSetPad(GPIOC, GPIOC_LED3);
+
+	extStart(&EXTD1, &extcfg);
+	extChannelEnable(&EXTD1, 0);
 
 //	AFIO->MAPR |= AFIO_MAPR_SPI1_REMAP;
 
 	SPIInit();
 
-	//NRFInit();
-
-	palClearPad(GPIOB, 4);
-
 	cmd[0] = 0x07;
-	SPIExchangeData(&NRF_SPI, cmd, result, 1);
+	SPIExchangeData(&SPID1, cmd, result, 1);
 
 	if (result[0] == 0xE)
-	{
 		palSetPad(GPIOC, GPIOC_LED4);
-	}
+	else
+		return;
+
+	fc_nrf_rx_mode();
+
+	fc_nrf_update();
+
+	(void)chThdCreateStatic(myThreadWorkingArea, sizeof(myThreadWorkingArea),
+	                          NORMALPRIO, fc_nrf_update, NULL);
 
 	while (1)
 	{

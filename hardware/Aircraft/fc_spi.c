@@ -74,6 +74,17 @@ void SPIInit(void)
 	chMtxInit(&SPIMtx); /* Mutex initialization before use */
 }
 
+int SPIExchangeDataI(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size) {
+	//chMtxLock(&SPIMtx);
+
+	/*
+	 * Do exchange between device and MCU.
+	 */
+	spiStartExchangeI(spip, size, tx, rx);  /* Atomic transfer operations.      */
+
+	return 0;
+}
+
 /*
  * SPI bus exchange routine
  */

@@ -80,8 +80,8 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        main.c \
        drivers/engine.c \
-       fc_nrf24l01.c \
-       fc_spi.c
+       fc_nrf.c \
+       fc_spi.c \
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
