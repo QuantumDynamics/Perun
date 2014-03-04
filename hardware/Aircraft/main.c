@@ -6,8 +6,6 @@
 #include "fc_nrf.h"
 #include "fc_spi.h"
 
-extern BinarySemaphore NRFSemIRQ;
-
 static const EXTConfig extcfg = {
   {
 	{EXT_CH_MODE_DISABLED, NULL},

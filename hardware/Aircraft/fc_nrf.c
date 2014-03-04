@@ -72,6 +72,8 @@ unsigned char TX_ADDRESS[TX_ADR_WIDTH]  =
 };
 
 msg_t fc_nrf_update(void* arg){
+	(void)arg;
+
 	for(;;)
 	{
 		chBSemWait(&NRFSemIRQ);
