@@ -27,9 +27,15 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "pal.h"
 
 #include "fc_nrf.h"
 #include "fc_spi.h"
+
+float accel_x = 16;
+float accel_y = 8;
+float accel_z = 4;
+float gyro = 2;
 
 int main(void)
 {
@@ -48,23 +54,13 @@ int main(void)
 
 	SPIInit();
 
-	cmd = 0x07;
-	SPIExchangeData(&NRF_SPI, &cmd, &result, 1);
-
-	palClearPad(GPIOB, 4);
-
-	if (result == 0xE)
-	{
-		palSetPad(GPIOD, GPIOD_LED4);
-	}
-	else
-	{
-		palSetPad(GPIOD, GPIOD_LED3);
-	}
+	fc_nrf_tx_mode();
 
 	while (TRUE)
 	{
-		//palTogglePad(GPIOD, GPIOD_LED3);
+		palTogglePad(GPIOD, GPIOD_LED5);
+
+		fc_transmit("ABC");
 
 		chThdSleepMilliseconds(250);
 

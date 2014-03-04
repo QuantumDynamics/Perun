@@ -2,7 +2,7 @@
  * fc_nrf.c
  *
  *  Created on: 13-12-2012
- *      Author: terianil
+ *      Author: Kamil Maciejczek
  */
 
 #include "fc_nrf.h"
@@ -11,19 +11,21 @@
 #include <string.h>
 #include "fc_spi.h"
 
-#define TX_ADR_WIDTH    5   // 5 unsigned chars TX(RX) address width
-#define TX_PLOAD_WIDTH  32  // 32 unsigned chars TX payload
+#define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
+#define NRF_PORT_CE		5	// NRF chip enable port pin
 
-#define NRF_PORT_CE			5	// NRF chip enable port pin
+unsigned char tx_buf[TX_PLOAD_WIDTH] = "A";
 
-// NRF transmit buffer
-volatile unsigned char tx_buf[TX_PLOAD_WIDTH] = "1234567890123456789012345678900";
+static WORKING_AREA(myThreadWorkingArea, 128);
+NRFCallback nrfCallback;
+BinarySemaphore NRFSemIRQ;
 
-// extern declarations of acceleration and rotation values
-extern float accel_x;
-extern float accel_y;
-extern float accel_z;
-extern float gyro;
+/*
+ * Buffers
+ */
+#define NRF_BUF_SIZE 128
+static uint8_t txbuf[NRF_BUF_SIZE];
+unsigned char rx_buf[TX_PLOAD_WIDTH] = {0};	// NRF receive buffer
 
 /*
  * Set CE to high/low
@@ -31,19 +33,11 @@ extern float gyro;
  */
 static void NRFSetCE(uint8_t state)
 {
-	if(state == 0){
-		palClearPad(GPIOB, 1);
-	} else {
-		palSetPad(GPIOB, 1);
-	}
+	if(state == 0)
+		palClearPad(NRFCEPORT, NRFCEPIN);
+	else
+		palSetPad(NRFCEPORT, NRFCEPIN);
 }
-
-/*
- * Buffers
- */
-#define NRF_BUF_SIZE 128
-// SPI NRF transmit buffer
-static uint8_t txbuf[NRF_BUF_SIZE];
 
 /*
  * Write byte to register
@@ -64,56 +58,86 @@ static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
 	NRFWriteReg(reg, &val, 1);
 }
 
+/*
+ * Read byte from register
+ */
 static void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
 {
 	SPIExchangeData(&SPID1, &command, outBuf, size);
 }
 
-// NRF transmit address
+
+// Define a static transmit address
 unsigned char TX_ADDRESS[TX_ADR_WIDTH]  =
 {
   0x34,0x43,0x10,0x10,0x01
-}; // Define a static TX address
+};
 
-// NRF main function
-// copy voltage values of acceleration and rotation into NRF package
-// and send it over pooling implementation of NRF driver
-void fc_nrf_update()
-{
-  for(;;)
-  {
-    unsigned char sstatus = 0;
-    NRFRead(STATUS, &sstatus, 1); // read register STATUS's value
+msg_t fc_nrf_update(void* arg){
+	(void)arg;
 
-    // copy acceleration data into transmit buffer
-    memcpy(tx_buf + 0, &gyro, sizeof(gyro));
-    memcpy(tx_buf + 1*sizeof(accel_x), &accel_x, sizeof(accel_x));
-    memcpy(tx_buf + 2*sizeof(accel_x), &accel_y, sizeof(accel_y));
-    memcpy(tx_buf + 3*sizeof(accel_x), &accel_z, sizeof(accel_z));
+	for(;;)
+	{
+		chBSemWait(&NRFSemIRQ);
 
-    if(sstatus&TX_DS)    // if receive data ready (TX_DS) interrupt
-    {
-    	NRFWriteSingleReg(FLUSH_TX,0);
-    	NRFWriteReg(WR_TX_PLOAD,tx_buf,TX_PLOAD_WIDTH);       // write playload to TX_FIFO
-    }
-    if(sstatus&MAX_RT)  // if receive data ready (MAX_RT) interrupt, this is retransmit than  SETUP_RETR
-    {
-    	NRFWriteSingleReg(FLUSH_TX,0);
-    	NRFWriteReg(WR_TX_PLOAD,tx_buf,TX_PLOAD_WIDTH);      // disable standy-mode
-    }
-    NRFWriteSingleReg(NRF_WRITE_REG+STATUS,sstatus);  // clear RX_DR or TX_DS or MAX_RT interrupt flag
+		unsigned char status = 0;
+		NRFRead(STATUS, &status, 1);    // read register STATUS's value
 
-    break;
-  }
+		if(status&RX_DR){				// if receive data ready (TX_DS) interrupt
+			NRFRead(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
+			NRFWriteSingleReg(FLUSH_RX, 0);           // clear RX_FIFO
+
+			nrfCallback(rx_buf);
+		}
+
+		NRFWriteSingleReg(NRF_WRITE_REG+STATUS, status);     // clear RX_DR or TX_DS or MAX_RT interrupt flag
+		chThdSleepMilliseconds(10);
+	}
+
+	return (msg_t)0;
 }
 
-// initialize I/O operations with NRF
+// initializes NRF I/O lines
 void fc_nrf_init_io(void)
 {
-  NRFSetCE(0);			// chip enable
+  NRFSetCE(0);	// chip enable
 }
 
-// setup NRF transmit mode
+//void nrfIrqHandler(EXTDriver * extp, expchannel_t channel) {
+//  (void)extp;
+//  (void)channel;
+//
+//  // DEBUG IRQ
+//  //palTogglePad(GPIOC, GPIOC_LED3);
+//
+//  chBSemSignalI(&NRFSemIRQ);
+//}
+
+// setup NRF as receiver
+void fc_nrf_rx_mode(NRFCallback callback){
+	fc_nrf_init_io();
+
+	chBSemInit(&NRFSemIRQ, TRUE);
+
+	NRFSetCE(0);
+
+	NRFWriteReg(NRF_WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH); // Use the same address on the RX device as the TX device
+	NRFWriteSingleReg(NRF_WRITE_REG + EN_AA, 0x01);      // Enable Auto.Ack:Pipe0
+	NRFWriteSingleReg(NRF_WRITE_REG + EN_RXADDR, 0x01);  // Enable Pipe0
+	NRFWriteSingleReg(NRF_WRITE_REG + RF_CH, 40);        // Select RF channel 40
+	NRFWriteSingleReg(NRF_WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH); // Select same RX payload width as TX Payload width
+	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, 0x07);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
+	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, 0x0f);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:RX. RX_DR enabled..
+
+	NRFSetCE(1);	// Set CE pin high to enable RX device
+	//  This device is now ready to receive one packet of 16 unsigned chars payload from a TX device sending to address
+	//  '3443101001', with auto acknowledgment, retransmit count of 10, RF channel 40 and datarate = 2Mbps.
+
+	nrfCallback = callback;
+
+	(void)chThdCreateStatic(myThreadWorkingArea, sizeof(myThreadWorkingArea), NORMALPRIO, fc_nrf_update, NULL);
+}
+
 void fc_nrf_tx_mode(void)
 {
 	fc_nrf_init_io();
@@ -129,7 +153,38 @@ void fc_nrf_tx_mode(void)
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_CH, 40);        // Select RF channel 40
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, 0x07);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
 	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, 0x0e);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:TX. MAX_RT & TX_DS enabled..
-	NRFWriteReg(WR_TX_PLOAD,tx_buf,TX_PLOAD_WIDTH);
+	NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);
 
 	NRFSetCE(1);
+}
+
+int fc_nrf_test_spi_connection(void){
+	uint8_t cmd[1] = { 0 };
+	uint8_t result[1] =	{ 0 };
+
+	cmd[0] = 0x07;
+
+	SPIExchangeData(&NRFSPI, cmd, result, 1);
+
+	if (result[0] == 0xE)
+		return 1;
+
+	return 0;
+}
+
+void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH])
+{
+	unsigned char sstatus = 0;
+
+	memcpy(tx_buf, buffer, TX_PLOAD_WIDTH);
+
+	NRFRead(STATUS, &sstatus, 1);
+
+	if ((sstatus & TX_DS) || (sstatus & MAX_RT))
+	{
+		NRFWriteSingleReg(FLUSH_TX, 0);
+		NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);       // write playload to TX_FIFO
+	}
+
+	NRFWriteSingleReg(NRF_WRITE_REG + STATUS, sstatus);  // clear RX_DR or TX_DS or MAX_RT interrupt flag
 }
