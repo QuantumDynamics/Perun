@@ -11,10 +11,12 @@
 #include <string.h>
 #include "fc_spi.h"
 
-#define TX_ADR_WIDTH    5   // 5 unsigned chars TX(RX) address width
-#define TX_PLOAD_WIDTH  32  // 32 unsigned chars TX payload
+#define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
+#define NRF_PORT_CE		5	// NRF chip enable port pin
 
-#define NRF_PORT_CE			5	// NRF chip enable port pin
+static WORKING_AREA(myThreadWorkingArea, 128);
+NRFCallback nrfCallback;
+BinarySemaphore NRFSemIRQ;
 
 /*
  * Buffers
@@ -29,19 +31,10 @@ unsigned char rx_buf[TX_PLOAD_WIDTH] = {0};	// NRF receive buffer
  */
 static void NRFSetCE(uint8_t state)
 {
-	if(state == 0){
-		palClearPad(GPIOB, 4);
-	} else {
-		palSetPad(GPIOB, 4);
-	}
-}
-
-
-/*
- * Toggle LED 2
- */
-static void ledtoggle2(void){
-	palTogglePad(GPIOC, GPIOC_LED4);
+	if(state == 0)
+		palClearPad(NRFCEPORT, NRFCEPIN);
+	else
+		palSetPad(NRFCEPORT, NRFCEPIN);
 }
 
 /*
@@ -78,43 +71,23 @@ unsigned char TX_ADDRESS[TX_ADR_WIDTH]  =
   0x34,0x43,0x10,0x10,0x01
 };
 
-// NRF main procedure
-// polling actual status of device, receive and parse values of gyroscope and accelerometer voltages
-
-BinarySemaphore NRFSemIRQ;
-
-msg_t fc_nrf_update(void *arg)
-{
-	// gyroscope and accelerometer voltages
-	float gyro, acc_x, acc_y, acc_z;
-	gyro = acc_x = acc_y = acc_z = 0.0f;
-
+msg_t fc_nrf_update(void* arg){
 	for(;;)
 	{
-
 		chBSemWait(&NRFSemIRQ);
 
 		unsigned char status = 0;
-		NRFRead(STATUS, &status, 1);     // read register STATUS's value
-		if(status&RX_DR)     // if receive data ready (TX_DS) interrupt
-		{
-		  NRFRead(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
-		  NRFWriteSingleReg(FLUSH_RX,0);           // clear RX_FIFO
+		NRFRead(STATUS, &status, 1);    // read register STATUS's value
 
-		  // parse data
-		  memcpy(&gyro, sizeof(unsigned char)+rx_buf, sizeof(float));
-		  memcpy(&acc_x, sizeof(unsigned char)+rx_buf+sizeof(float), sizeof(float));
-		  memcpy(&acc_y, sizeof(unsigned char)+rx_buf+2*sizeof(float), sizeof(float));
-		  memcpy(&acc_z, sizeof(unsigned char)+rx_buf+3*sizeof(float), sizeof(float));
+		if(status&RX_DR){				// if receive data ready (TX_DS) interrupt
+			NRFRead(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
+			NRFWriteSingleReg(FLUSH_RX, 0);           // clear RX_FIFO
 
-		  //status &= ~RX_DR;
-
-		  //if(strcmp(rx_buf, "A") == 0)
-		  if(((char*)rx_buf)[1] == 65)
-		  	  ledtoggle2();
+			nrfCallback(rx_buf);
 		}
+
 		NRFWriteSingleReg(NRF_WRITE_REG+STATUS, status);     // clear RX_DR or TX_DS or MAX_RT interrupt flag
-		chThdSleepMilliseconds(30);
+		chThdSleepMilliseconds(10);
 	}
 
 	return (msg_t)0;
@@ -123,13 +96,21 @@ msg_t fc_nrf_update(void *arg)
 // initializes NRF I/O lines
 void fc_nrf_init_io(void)
 {
-  palClearPad(GPIOC, 4); // IRQ
   NRFSetCE(0);	// chip enable
 }
 
+void nrfIrqHandler(EXTDriver *extp, expchannel_t channel) {
+  (void)extp;
+  (void)channel;
+
+  // DEBUG IRQ
+  //palTogglePad(GPIOC, GPIOC_LED3);
+
+  chBSemSignalI(&NRFSemIRQ);
+}
+
 // setup NRF as receiver
-void fc_nrf_rx_mode(void)
-{
+void fc_nrf_rx_mode(NRFCallback callback){
 	fc_nrf_init_io();
 
 	chBSemInit(&NRFSemIRQ, TRUE);
@@ -144,7 +125,25 @@ void fc_nrf_rx_mode(void)
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, 0x07);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
 	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, 0x0f);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:RX. RX_DR enabled..
 
-	NRFSetCE(1);                             // Set CE pin high to enable RX device
+	NRFSetCE(1);	// Set CE pin high to enable RX device
 	//  This device is now ready to receive one packet of 16 unsigned chars payload from a TX device sending to address
 	//  '3443101001', with auto acknowledgment, retransmit count of 10, RF channel 40 and datarate = 2Mbps.
+
+	nrfCallback = callback;
+
+	(void)chThdCreateStatic(myThreadWorkingArea, sizeof(myThreadWorkingArea), NORMALPRIO, fc_nrf_update, NULL);
+}
+
+int fc_nrf_test_spi_connection(void){
+	uint8_t cmd[1] = { 0 };
+	uint8_t result[1] =	{ 0 };
+
+	cmd[0] = 0x07;
+
+	SPIExchangeData(&NRFSPI, cmd, result, 1);
+
+	if (result[0] == 0xE)
+		return 1;
+
+	return 0;
 }

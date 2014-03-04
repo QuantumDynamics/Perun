@@ -3,6 +3,7 @@
 #define API_H
 
 #include "ch.h"
+#include "hal.h"
 
 //****************************************************
 // SPI(nRF24L01) commands
@@ -45,13 +46,12 @@
 #define RX_PW_P5        0x16  // 'RX payload width, pipe5' register address
 #define FIFO_STATUS     0x17  // 'FIFO Status Register' register address
 
-//************************************************
-#endif
-
-#ifndef NRF24L01_h
-#define NRF24L01_h
-
 //---------------------------------------------
+
+#define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
+#define TX_PLOAD_WIDTH  32  // 32 unsigned chars TX payload
+
+
 #define CE       8
 // CE_BIT:   Digital Input     Chip Enable Activates RX or TX mode
 
@@ -60,6 +60,24 @@
 
 #define IRQ      10
 // IRQ BIT:  Digital Output    Maskable interrupt pin
+
+#define NRFSPI SPID1
+
+#define NRFCEPORT GPIOB
+#define NRFCEPIN 4
+
+#define NRFIRQPORT GPIOB
+#define NRFIRQPIN 4
+
+void nrfIrqHandler(EXTDriver *extp, expchannel_t channel);
+
+#define NRFIRQLINECONFIG {EXT_CH_MODE_FALLING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB, nrfIrqHandler}
+
 //*********************************************
+
+typedef void (*NRFCallback) (unsigned char[TX_PLOAD_WIDTH]);
+
+void fc_nrf_rx_mode(NRFCallback callback);
+int fc_nrf_test_spi_connection(void);
 
 #endif

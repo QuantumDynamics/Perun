@@ -8,21 +8,6 @@
 
 extern BinarySemaphore NRFSemIRQ;
 
-static void extcb1(EXTDriver *extp, expchannel_t channel) {
-  static VirtualTimer vt4;
-
-  (void)extp;
-  (void)channel;
-
-  palTogglePad(GPIOC, GPIOC_LED3);
-
-  chSysLockFromIsr();
-
-  chBSemSignalI(&NRFSemIRQ);
-
-  chSysUnlockFromIsr();
-}
-
 static const EXTConfig extcfg = {
   {
 	{EXT_CH_MODE_DISABLED, NULL},
@@ -30,7 +15,7 @@ static const EXTConfig extcfg = {
     {EXT_CH_MODE_DISABLED, NULL},
     {EXT_CH_MODE_DISABLED, NULL},
     {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_FALLING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB, extcb1},
+    NRFIRQLINECONFIG,
     {EXT_CH_MODE_DISABLED, NULL},
     {EXT_CH_MODE_DISABLED, NULL},
     {EXT_CH_MODE_DISABLED, NULL},
@@ -84,15 +69,13 @@ void testEngine(void)
 	}
 }
 
-static WORKING_AREA(myThreadWorkingArea, 128);
+void callback(unsigned char buf[TX_PLOAD_WIDTH]){
+	if(((char*)buf)[1] == 65)
+		palTogglePad(GPIOC, GPIOC_LED4);
+}
 
 int main(void)
 {
-	uint8_t cmd[1] =
-	{ 0 };
-	uint8_t result[1] =
-	{ 0 };
-
 	halInit();
 	chSysInit();
 
@@ -105,24 +88,9 @@ int main(void)
 	extStart(&EXTD1, &extcfg);
 	extChannelEnable(&EXTD1, 0);
 
-//	AFIO->MAPR |= AFIO_MAPR_SPI1_REMAP;
-
 	SPIInit();
 
-	cmd[0] = 0x07;
-	SPIExchangeData(&SPID1, cmd, result, 1);
-
-	if (result[0] == 0xE)
-		palSetPad(GPIOC, GPIOC_LED4);
-	else
-		return;
-
-	fc_nrf_rx_mode();
-
-	fc_nrf_update();
-
-	(void)chThdCreateStatic(myThreadWorkingArea, sizeof(myThreadWorkingArea),
-	                          NORMALPRIO, fc_nrf_update, NULL);
+	fc_nrf_rx_mode(callback);
 
 	while (1)
 	{
