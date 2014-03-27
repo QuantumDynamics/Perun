@@ -7,6 +7,7 @@
 #include "usbSetup.h"
 #include "fc_spi.h"
 #include "fc_nrf.h"
+#include "../../Aircraft/protocol.h"
 
 SerialUSBDriver SDU1;
 
@@ -39,6 +40,8 @@ msg_t keepShellAlive(void)
 	}
 
 	chThdSleepMilliseconds(500);
+
+	return 0;
 }
 
 void initUsbShell(void)
@@ -73,11 +76,18 @@ static void cmd_control(BaseSequentialStream *chp, int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
-	int enginePower = atoi(argv[0]);
+	char buf[TX_PLOAD_WIDTH] =
+	{ 0 };
+
+	unsigned char enginePower = atoi(argv[0]);
 	//int servo1Power = ator(argv[1]);
 	//int servo2Power = ator(argv[2]);
 
 	chprintf(chp, "Setting engine power to %d\n\r", enginePower);
+
+	CreateSetFlightParametersCommand(buf, enginePower, 10, 20);
+
+	fc_transmit(buf);
 }
 
 static void cmd_stop(BaseSequentialStream *chp, int argc, char *argv[])
@@ -95,10 +105,29 @@ static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[])
 	fc_transmit("B");
 }
 
+static void cmd_x(BaseSequentialStream *chp, int argc, char *argv[])
+{
+	(void) argc;
+	(void) argv;
+	char buf[TX_PLOAD_WIDTH] =
+	{ 0 };
+
+	unsigned char enginePower = 50;
+	//int servo1Power = ator(argv[1]);
+	//int servo2Power = ator(argv[2]);
+
+	chprintf(chp, "Setting engine power to %d\n\r", enginePower);
+
+	CreateSetFlightParametersCommand(buf, enginePower, 10, 20);
+
+	fc_transmit(buf);
+}
+
 const ShellCommand commands[] =
 		{
 				{ "leds", cmd_leds },
 				{ "control", cmd_control },
+				{ ".", cmd_x },
 				{ "stop", cmd_stop },
 				{ "test_tx", cmd_test },
 				{ NULL, NULL }

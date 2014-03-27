@@ -41,7 +41,6 @@ void SetFlightParametersCommandHandlerProxy (char* buffer)
 // Commands
 void SetFlightParametersCommandHandler (unsigned char throttle, char rudderAngle, char elevatorAngle)
 {
-	palTogglePad(GPIOC, GPIOC_LED3);
 
 	SetEngineThrottle(throttle);
 	SetRudderAngle(rudderAngle);

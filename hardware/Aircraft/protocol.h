@@ -3,7 +3,6 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "stm32f10x.h"
 
 typedef void (*CommandHandler)(char* args);
 
