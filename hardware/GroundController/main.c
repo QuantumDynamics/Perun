@@ -29,6 +29,9 @@
 #include "hal.h"
 #include "pal.h"
 
+#include "fc_spi.h"
+#include "fc_nrf.h"
+
 #include "usb/usbShell.h"
 #include "chprintf.h"
 
@@ -37,14 +40,26 @@ int main(void)
 	halInit();
 	chSysInit();
 
-	palSetPadMode(GPIOA, GPIOA_BUTTON, PAL_MODE_INPUT_PULLDOWN);palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_OUTPUT_PUSHPULL);palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_OUTPUT_PUSHPULL);palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOA, GPIOA_BUTTON, PAL_MODE_INPUT_PULLDOWN);
+	palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_OUTPUT_PUSHPULL);
 
 	chThdSleepSeconds(1);
 
 	initUsbShell();
 
+	SPIInit();
+
+	fc_nrf_tx_mode();
+
+	if(fc_nrf_test_spi_connection() == 1) {
+		palSetPad(GPIOD, GPIOD_LED3);
+	}
+
 	while (TRUE)
 	{
+		palTogglePad(GPIOD, GPIOD_LED4);
 		keepShellAlive();
 		chThdYield();
 	}

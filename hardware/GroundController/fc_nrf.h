@@ -52,7 +52,7 @@
 #define TX_PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 
 
-#define CE       8
+#define CE       1
 // CE_BIT:   Digital Input     Chip Enable Activates RX or TX mode
 
 #define CSN      9
