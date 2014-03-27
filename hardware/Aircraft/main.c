@@ -5,6 +5,7 @@
 #include "drivers/engine.h"
 #include "fc_nrf.h"
 #include "fc_spi.h"
+#include "protocol.h"
 
 static const EXTConfig extcfg = {
   {
