@@ -29,41 +29,23 @@
 #include "hal.h"
 #include "pal.h"
 
-#include "fc_nrf.h"
-#include "fc_spi.h"
-
-float accel_x = 16;
-float accel_y = 8;
-float accel_z = 4;
-float gyro = 2;
+#include "usb/usbShell.h"
+#include "chprintf.h"
 
 int main(void)
 {
-	uint8_t cmd = 0;
-	uint8_t result = 0;
-
 	halInit();
 	chSysInit();
 
-	palSetPadMode(GPIOA, GPIOA_BUTTON, PAL_MODE_INPUT_PULLDOWN);
-	palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOA, GPIOA_BUTTON, PAL_MODE_INPUT_PULLDOWN);palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_OUTPUT_PUSHPULL);palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_OUTPUT_PUSHPULL);palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_OUTPUT_PUSHPULL);
 
 	chThdSleepSeconds(1);
 
-	SPIInit();
-
-	fc_nrf_tx_mode();
+	initUsbShell();
 
 	while (TRUE)
 	{
-		palTogglePad(GPIOD, GPIOD_LED5);
-
-		fc_transmit("ABC");
-
-		chThdSleepMilliseconds(250);
-
+		keepShellAlive();
 		chThdYield();
 	}
 }
