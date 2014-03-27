@@ -1,7 +1,61 @@
 #include "protocol.h"
 
-void InitProtocol ()
+Command CommandSet[] =
 {
+	 { SetFlightParametersCommand, SetFlightParametersCommandHandlerProxy }
+};
 
+void HandleCommand(char* buffer)
+{
+	unsigned int i;
+
+	for(i = 0; i < sizeof(CommandSet)/sizeof(Command); i++)
+	{
+		if(CommandSet[i].command == buffer[0])
+		{
+			CommandSet[i].commandHandler(++buffer);
+			break;
+		}
+	}
 }
-void HandleCommand(char* buffer);
+
+// Create Command
+void CreateSetFlightParametersCommand(char* outputBuffer, unsigned char throttle, char rudderAngle, char elevatorAngle)
+{
+	outputBuffer[0] = SetFlightParametersCommand;
+	outputBuffer[1] = throttle;
+	outputBuffer[2] = rudderAngle;
+	outputBuffer[3] = elevatorAngle;
+}
+
+// Command Proxy
+void SetFlightParametersCommandHandlerProxy (char* buffer)
+{
+	unsigned char throttle = ((unsigned char*)buffer)[0];
+	char rudderAngle = ((char*)buffer)[1];
+	char elevatorAngle = ((char*)buffer)[2];
+
+	SetFlightParametersCommandHandler(throttle, rudderAngle, elevatorAngle);
+}
+
+// Commands
+void SetFlightParametersCommandHandler (unsigned char throttle, char rudderAngle, char elevatorAngle)
+{
+	palTogglePad(GPIOC, GPIOC_LED3);
+
+	SetEngineThrottle(throttle);
+	SetRudderAngle(rudderAngle);
+	SetElevatorAngle(elevatorAngle);
+}
+
+void SetEngineThrottle (unsigned char throttle)
+{
+}
+
+void SetRudderAngle (char rudderAngle)
+{
+}
+
+void SetElevatorAngle (char elevatorAngle)
+{
+}
