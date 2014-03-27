@@ -5,6 +5,7 @@
 #include "drivers/engine.h"
 #include "fc_nrf.h"
 #include "fc_spi.h"
+#include "protocol.h"
 
 static const EXTConfig extcfg = {
   {
@@ -47,7 +48,7 @@ void testEngine(void)
 
 	engineCalibrate();
 
-	while (TRUE)
+	/*while (TRUE)
 	{
 		for (i = 0; i <= 100; i += 1)
 		{
@@ -64,12 +65,14 @@ void testEngine(void)
 		}
 
 		chThdSleepSeconds(2);
-	}
+	}*/
 }
 
 void callback(unsigned char buf[TX_PLOAD_WIDTH]){
-	if(((char*)buf)[1] == 65)
-		palTogglePad(GPIOC, GPIOC_LED4);
+	//if(((char*)buf)[1] == 65)
+	//	palTogglePad(GPIOC, GPIOC_LED4);
+
+	HandleCommand(++buf);
 }
 
 int main(void)
@@ -81,7 +84,7 @@ int main(void)
 
 	palSetPadMode(GPIOC, GPIOC_LED3, PAL_MODE_OUTPUT_PUSHPULL); palSetPadMode(GPIOC, GPIOC_LED4, PAL_MODE_OUTPUT_PUSHPULL);
 
-	//palSetPad(GPIOC, GPIOC_LED3);
+	testEngine();
 
 	extStart(&EXTD1, &extcfg);
 	extChannelEnable(&EXTD1, 0);
@@ -92,6 +95,10 @@ int main(void)
 
 	while (1)
 	{
+		palTogglePad(GPIOC, GPIOC_LED3);
+
+		chThdSleepSeconds(1);
+
 		chThdYield();
 	}
 }
