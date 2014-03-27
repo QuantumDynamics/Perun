@@ -1,11 +1,12 @@
 #include "protocol.h"
+#include "drivers/engine.h"
 
 Command CommandSet[] =
 {
 	 { SetFlightParametersCommand, SetFlightParametersCommandHandlerProxy }
 };
 
-void HandleCommand(char* buffer)
+void HandleCommand(unsigned char* buffer)
 {
 	unsigned int i;
 
@@ -29,7 +30,7 @@ void CreateSetFlightParametersCommand(char* outputBuffer, unsigned char throttle
 }
 
 // Command Proxy
-void SetFlightParametersCommandHandlerProxy (char* buffer)
+void SetFlightParametersCommandHandlerProxy (unsigned char* buffer)
 {
 	unsigned char throttle = ((unsigned char*)buffer)[0];
 	char rudderAngle = ((char*)buffer)[1];
@@ -38,10 +39,10 @@ void SetFlightParametersCommandHandlerProxy (char* buffer)
 	SetFlightParametersCommandHandler(throttle, rudderAngle, elevatorAngle);
 }
 
-// Commands
+// Command Handler
 void SetFlightParametersCommandHandler (unsigned char throttle, char rudderAngle, char elevatorAngle)
 {
-	palTogglePad(GPIOC, GPIOC_LED3);
+	palTogglePad(GPIOC, GPIOC_LED4);
 
 	SetEngineThrottle(throttle);
 	SetRudderAngle(rudderAngle);
@@ -50,6 +51,7 @@ void SetFlightParametersCommandHandler (unsigned char throttle, char rudderAngle
 
 void SetEngineThrottle (unsigned char throttle)
 {
+	engineThrottle(throttle);
 }
 
 void SetRudderAngle (char rudderAngle)

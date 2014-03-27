@@ -5,7 +5,7 @@
 #include "hal.h"
 #include "stm32f10x.h"
 
-typedef void (*CommandHandler)(char* args);
+typedef void (*CommandHandler)(unsigned char* args);
 
 enum Commands
 {
@@ -21,13 +21,13 @@ typedef struct Command
 	CommandHandler commandHandler;
 } Command;
 
-void HandleCommand(char* buffer);
+void HandleCommand(unsigned char* buffer);
 
 // Create Command
 void CreateSetFlightParametersCommand(char* outputBuffer, unsigned char throttle, char rudderAngle, char elevatorAngle);
 
 // Command Proxy
-void SetFlightParametersCommandHandlerProxy (char* buffer);
+void SetFlightParametersCommandHandlerProxy (unsigned char* buffer);
 
 // Command Handlers
 void SetFlightParametersCommandHandler (unsigned char throttle, char rudderAngle, char elevatorAngle);
