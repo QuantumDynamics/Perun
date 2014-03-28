@@ -6,16 +6,17 @@ static int throttleMin;
 static int throttleMax;
 
 static PWMConfig pwmcfg =
-{ 100000, /* 100kHz PWM clock frequency.   */
-2000, /* PWM period 2ms (in ticks).    */
-NULL,
-{
-{ PWM_OUTPUT_DISABLED, NULL },
-{ PWM_OUTPUT_DISABLED, NULL },
-{ PWM_OUTPUT_DISABLED, NULL },
-{ PWM_OUTPUT_ACTIVE_HIGH, NULL } },
-/* HW dependent part.*/
-0, 0,
+		{ 100000, /* 100kHz PWM clock frequency.   */
+		2000, /* PWM period 2ms (in ticks).    */
+		NULL,
+				{
+						{ PWM_OUTPUT_DISABLED, NULL },
+						{ PWM_OUTPUT_ACTIVE_HIGH, NULL },
+						{ PWM_OUTPUT_ACTIVE_HIGH, NULL },
+						{ PWM_OUTPUT_ACTIVE_HIGH, NULL }
+				},
+				/* HW dependent part.*/
+				0, 0,
 #if STM32_PWM_USE_ADVANCED
 		0
 #endif

@@ -55,8 +55,10 @@ void SetEngineThrottle (unsigned char throttle)
 
 void SetRudderAngle (char rudderAngle)
 {
+	pwmEnableChannel(&ENGINE_PWM, 2, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + rudderAngle);
 }
 
 void SetElevatorAngle (char elevatorAngle)
 {
+	pwmEnableChannel(&ENGINE_PWM, 1, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + elevatorAngle);
 }

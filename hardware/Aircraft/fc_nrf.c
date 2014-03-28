@@ -13,7 +13,7 @@
 #include "protocol.h"
 
 #define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
-#define NRF_PORT_CE		5	// NRF chip enable port pin
+#define NRF_PORT_CE		6	// NRF chip enable port pin
 
 static WORKING_AREA(myThreadWorkingArea, 128);
 NRFCallback nrfCallback;
