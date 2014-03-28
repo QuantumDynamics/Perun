@@ -76,16 +76,16 @@ static void cmd_control(BaseSequentialStream *chp, int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
-	char buf[TX_PLOAD_WIDTH] =
+	unsigned char buf[TX_PLOAD_WIDTH] =
 	{ 0 };
 
 	unsigned char enginePower = atoi(argv[0]);
-	//int servo1Power = ator(argv[1]);
-	//int servo2Power = ator(argv[2]);
+	int rudder = atoi(argv[1]);
+	int elevator = atoi(argv[2]);
 
-	chprintf(chp, "Setting engine power to %d\n\r", enginePower);
+	chprintf(chp, "Engine: %d\tRudder:%d\tElevator:%d\r\n", enginePower, rudder, elevator);
 
-	CreateSetFlightParametersCommand(buf, enginePower, 10, 20);
+	CreateSetFlightParametersCommand(buf, enginePower, rudder, elevator);
 
 	fc_transmit(buf);
 }
@@ -94,7 +94,7 @@ static void cmd_stop(BaseSequentialStream *chp, int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
-	chprintf(chp, "Stopping!\n\r");
+	chprintf(chp, "Stopping!\r\n");
 }
 
 static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[])
@@ -103,20 +103,22 @@ static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[])
 	(void) argv;
 
 	fc_transmit("B");
+
+	palTogglePad(GPIOD, GPIOD_LED5);
 }
 
 static void cmd_x(BaseSequentialStream *chp, int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
-	char buf[TX_PLOAD_WIDTH] =
+	unsigned char buf[TX_PLOAD_WIDTH] =
 	{ 0 };
 
 	unsigned char enginePower = 50;
 	//int servo1Power = ator(argv[1]);
 	//int servo2Power = ator(argv[2]);
 
-	chprintf(chp, "Setting engine power to %d\n\r", enginePower);
+	chprintf(chp, "Setting engine power to %d\r\n", enginePower);
 
 	CreateSetFlightParametersCommand(buf, enginePower, 10, 20);
 
