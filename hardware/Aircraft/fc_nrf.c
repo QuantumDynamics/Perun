@@ -10,7 +10,6 @@
 #include "hal.h"
 #include <string.h>
 #include "fc_spi.h"
-#include "protocol.h"
 
 #define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
 #define NRF_PORT_CE		6	// NRF chip enable port pin

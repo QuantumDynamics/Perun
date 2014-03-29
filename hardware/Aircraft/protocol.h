@@ -11,7 +11,8 @@ enum Commands
 	SetEngineThrottleCommand = 1,
 	SetRudderAngleCommand,
 	SetElevatorAngleCommand,
-	SetFlightParametersCommand
+	SetFlightParametersCommand,
+	RequestStatus
 };
 
 typedef struct Command
@@ -24,9 +25,11 @@ void HandleCommand(unsigned char* buffer);
 
 // Command Proxy
 void SetFlightParametersCommandHandlerProxy (unsigned char* buffer);
+void RequestStatusCommandHandlerProxy (unsigned char* buffer);
 
 // Command Handlers
 void SetFlightParametersCommandHandler (unsigned char throttle, char rudderAngle, char elevatorAngle);
+void RequestStatusCommandHandler ();
 
 // Controls
 void SetEngineThrottle (unsigned char throttle);
@@ -34,12 +37,17 @@ void SetRudderAngle (char rudderAngle);
 void SetElevatorAngle (char elevatorAngle);
 
 // Create Command
-inline void CreateSetFlightParametersCommand(unsigned char* outputBuffer, unsigned char throttle, char rudderAngle, char elevatorAngle)
+static inline void CreateSetFlightParametersCommand(unsigned char* outputBuffer, unsigned char throttle, char rudderAngle, char elevatorAngle)
 {
 	outputBuffer[0] = SetFlightParametersCommand;
 	outputBuffer[1] = throttle;
 	outputBuffer[2] = rudderAngle;
 	outputBuffer[3] = elevatorAngle;
+}
+
+static inline void CreateRequestStatusCommandHandler (unsigned char* outputBuffer)
+{
+}
 }
 
 #endif

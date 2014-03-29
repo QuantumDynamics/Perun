@@ -3,7 +3,8 @@
 
 Command CommandSet[] =
 {
-	 { SetFlightParametersCommand, SetFlightParametersCommandHandlerProxy }
+	 { SetFlightParametersCommand, SetFlightParametersCommandHandlerProxy },
+	 { RequestStatus, SetFlightParametersCommandHandlerProxy }
 };
 
 void HandleCommand(unsigned char* buffer)
