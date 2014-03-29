@@ -20,15 +20,6 @@ void HandleCommand(unsigned char* buffer)
 	}
 }
 
-// Create Command
-void CreateSetFlightParametersCommand(char* outputBuffer, unsigned char throttle, char rudderAngle, char elevatorAngle)
-{
-	outputBuffer[0] = SetFlightParametersCommand;
-	outputBuffer[1] = throttle;
-	outputBuffer[2] = rudderAngle;
-	outputBuffer[3] = elevatorAngle;
-}
-
 // Command Proxy
 void SetFlightParametersCommandHandlerProxy (unsigned char* buffer)
 {

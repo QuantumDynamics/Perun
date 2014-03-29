@@ -7,7 +7,8 @@
 #include "usbSetup.h"
 #include "fc_spi.h"
 #include "fc_nrf.h"
-#include "../../Aircraft/protocol.h"
+
+#include "remote_control.h"
 
 SerialUSBDriver SDU1;
 
@@ -76,62 +77,41 @@ static void cmd_control(BaseSequentialStream *chp, int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
-	unsigned char buf[TX_PLOAD_WIDTH] =
-	{ 0 };
 
 	unsigned char enginePower = atoi(argv[0]);
-	int rudder = atoi(argv[1]);
-	int elevator = atoi(argv[2]);
+	unsigned char rudder = atoi(argv[1]);
+	unsigned char elevator = atoi(argv[2]);
 
 	chprintf(chp, "Engine: %d\tRudder:%d\tElevator:%d\r\n", enginePower, rudder, elevator);
 
-	CreateSetFlightParametersCommand(buf, enginePower, rudder, elevator);
+	setFlightParameters(enginePower, rudder, elevator);
+}
 
-	fc_transmit(buf);
+static void cmd_start(BaseSequentialStream *chp, int argc, char * argv[])
+{
+	(void) argc;
+	(void) argv;
+
+	chprintf(chp, "Starting remote control!\r\n");
+
+	startRemoteControl();
 }
 
 static void cmd_stop(BaseSequentialStream *chp, int argc, char *argv[])
 {
 	(void) argc;
 	(void) argv;
-	chprintf(chp, "Stopping!\r\n");
-}
+	chprintf(chp, "Stopping remote control!\r\n");
 
-static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[])
-{
-	(void) argc;
-	(void) argv;
-
-	fc_transmit("B");
-
-	palTogglePad(GPIOD, GPIOD_LED5);
-}
-
-static void cmd_x(BaseSequentialStream *chp, int argc, char *argv[])
-{
-	(void) argc;
-	(void) argv;
-	unsigned char buf[TX_PLOAD_WIDTH] =
-	{ 0 };
-
-	unsigned char enginePower = 50;
-	//int servo1Power = ator(argv[1]);
-	//int servo2Power = ator(argv[2]);
-
-	chprintf(chp, "Setting engine power to %d\r\n", enginePower);
-
-	CreateSetFlightParametersCommand(buf, enginePower, 10, 20);
-
-	fc_transmit(buf);
+	stopRemoteControl();
 }
 
 const ShellCommand commands[] =
 		{
 				{ "leds", cmd_leds },
 				{ "control", cmd_control },
-				{ ".", cmd_x },
+				{ "start", cmd_start },
 				{ "stop", cmd_stop },
-				{ "test_tx", cmd_test },
 				{ NULL, NULL }
 		};
 

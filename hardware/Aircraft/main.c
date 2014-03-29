@@ -40,6 +40,8 @@ static const EXTConfig extcfg =
 
 static void watchdog_expired(void * _)
 {
+	(void)_;
+
 	SetFlightParametersCommandHandler(0, 145, 145);
 }
 

@@ -91,7 +91,7 @@ CSRC = $(PORTSRC) \
        fc_spi.c \
        usb/usbSetup.c \
        usb/usbShell.c \
-       ../Aircraft/protocol.c
+       remote_control.c        
        
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
