@@ -13,7 +13,6 @@
 
 #define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
 #define NRF_PORT_CE		5	// NRF chip enable port pin
-
 unsigned char tx_buf[TX_PLOAD_WIDTH] = "A";
 
 static WORKING_AREA(myThreadWorkingArea, 128);
@@ -25,7 +24,8 @@ BinarySemaphore NRFSemIRQ;
  */
 #define NRF_BUF_SIZE 128
 static uint8_t txbuf[NRF_BUF_SIZE];
-unsigned char rx_buf[TX_PLOAD_WIDTH] = {0};	// NRF receive buffer
+unsigned char rx_buf[TX_PLOAD_WIDTH] =
+		{ 0 };	// NRF receive buffer
 
 /*
  * Set CE to high/low
@@ -33,7 +33,7 @@ unsigned char rx_buf[TX_PLOAD_WIDTH] = {0};	// NRF receive buffer
  */
 static void NRFSetCE(uint8_t state)
 {
-	if(state == 0)
+	if (state == 0)
 		palClearPad(NRFCEPORT, NRFCEPIN);
 	else
 		palSetPad(NRFCEPORT, NRFCEPIN);
@@ -44,10 +44,10 @@ static void NRFSetCE(uint8_t state)
  */
 static void NRFWriteReg(uint8_t reg, uint8_t val[], uint8_t size)
 {
-	txbuf[0]=(reg);
-	memcpy(txbuf+1, val, size);
+	txbuf[0] = (reg);
+	memcpy(txbuf + 1, val, size);
 
-	SPISendData(&SPID1, txbuf, size+1);
+	SPISendData(&SPID1, txbuf, size + 1);
 }
 
 /*
@@ -66,41 +66,64 @@ static void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
 	SPIExchangeData(&SPID1, &command, outBuf, size);
 }
 
-
 // Define a static transmit address
-unsigned char TX_ADDRESS[TX_ADR_WIDTH]  =
+unsigned char TX_ADDRESS[TX_ADR_WIDTH] =
+		{
+				0x34, 0x43, 0x10, 0x10, 0x01
+		};
+
+msg_t fc_nrf_update(void* arg)
 {
-  0x34,0x43,0x10,0x10,0x01
-};
+	(void) arg;
 
-msg_t fc_nrf_update(void* arg){
-	(void)arg;
-
-	for(;;)
+	for (;;)
 	{
 		chBSemWait(&NRFSemIRQ);
 
 		unsigned char status = 0;
 		NRFRead(STATUS, &status, 1);    // read register STATUS's value
 
-		if(status&RX_DR){				// if receive data ready (TX_DS) interrupt
+		if (status & RX_DR)
+		{				// if receive data ready (TX_DS) interrupt
 			NRFRead(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
 			NRFWriteSingleReg(FLUSH_RX, 0);           // clear RX_FIFO
 
 			nrfCallback(rx_buf);
 		}
 
-		NRFWriteSingleReg(NRF_WRITE_REG+STATUS, status);     // clear RX_DR or TX_DS or MAX_RT interrupt flag
+		NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);     // clear RX_DR or TX_DS or MAX_RT interrupt flag
 		chThdSleepMilliseconds(10);
 	}
 
-	return (msg_t)0;
+	return (msg_t) 0;
+}
+
+void fc_sync_read(unsigned char * buf)
+{
+//	time_t endTime = tim
+
+	while (1)
+	{
+		unsigned char status = 0;
+
+		NRFRead(STATUS, &status, 1);
+
+		if (status & RX_DR)
+		{
+			NRFRead(RD_RX_PLOAD, buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
+			NRFWriteSingleReg(FLUSH_RX, 0);           // clear RX_FIFO
+
+			break;
+		}
+
+		chThdYield();
+	}
 }
 
 // initializes NRF I/O lines
 void fc_nrf_init_io(void)
 {
-  NRFSetCE(0);	// chip enable
+	NRFSetCE(0);	// chip enable
 }
 
 //void nrfIrqHandler(EXTDriver * extp, expchannel_t channel) {
@@ -114,7 +137,8 @@ void fc_nrf_init_io(void)
 //}
 
 // setup NRF as receiver
-void fc_nrf_rx_mode(NRFCallback callback){
+void fc_nrf_rx_mode(NRFCallback callback)
+{
 	fc_nrf_init_io();
 
 	chBSemInit(&NRFSemIRQ, TRUE);
@@ -135,7 +159,10 @@ void fc_nrf_rx_mode(NRFCallback callback){
 
 	nrfCallback = callback;
 
-	(void)chThdCreateStatic(myThreadWorkingArea, sizeof(myThreadWorkingArea), NORMALPRIO, fc_nrf_update, NULL);
+	if (callback != NULL)
+	{
+		(void) chThdCreateStatic(myThreadWorkingArea, sizeof(myThreadWorkingArea), NORMALPRIO, fc_nrf_update, NULL);
+	}
 }
 
 void fc_nrf_tx_mode(void)
@@ -158,9 +185,12 @@ void fc_nrf_tx_mode(void)
 	NRFSetCE(1);
 }
 
-int fc_nrf_test_spi_connection(void){
-	uint8_t cmd[1] = { 0 };
-	uint8_t result[1] =	{ 0 };
+int fc_nrf_test_spi_connection(void)
+{
+	uint8_t cmd[1] =
+			{ 0 };
+	uint8_t result[1] =
+			{ 0 };
 
 	cmd[0] = 0x07;
 
@@ -187,4 +217,21 @@ void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH])
 	}
 
 	NRFWriteSingleReg(NRF_WRITE_REG + STATUS, sstatus);  // clear RX_DR or TX_DS or MAX_RT interrupt flag
+}
+
+void fc_transmit_and_wait(unsigned char buffer[TX_PLOAD_WIDTH])
+{
+	fc_transmit(buffer);
+
+	while(1)
+	{
+		unsigned char status = 0;
+
+		NRFRead(STATUS, &status, 1);
+
+		if((status & TX_DS) > 0)
+		{
+			return;
+		}
+	}
 }

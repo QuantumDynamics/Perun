@@ -82,6 +82,8 @@ void fc_nrf_tx_mode(void);
 
 int fc_nrf_test_spi_connection(void);
 void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH]);
+void fc_transmit_and_wait(unsigned char buffer[TX_PLOAD_WIDTH]);
+void fc_sync_read(unsigned char * buf);
 
 
 #endif
