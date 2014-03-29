@@ -1,0 +1,7 @@
+jedno skrajne - 55
+drugie skrajne - 255
+
+środek - 145
+
+
+NRF_CE = PCB6

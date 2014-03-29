@@ -7,75 +7,50 @@
 #include "fc_spi.h"
 #include "protocol.h"
 
+static VirtualTimer watchdog;
+
 static const EXTConfig extcfg =
-{
 		{
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				NRFIRQLINECONFIG,
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL },
-				{ EXT_CH_MODE_DISABLED, NULL }
-		}
-};
+				{
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						NRFIRQLINECONFIG,
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL },
+						{ EXT_CH_MODE_DISABLED, NULL }
+				}
+		};
 
-void testEngine(void)
+static void watchdog_expired(void * _)
 {
-	int i;
-
-	engineInit();
-
-	AFIO ->MAPR |= AFIO_MAPR_TIM3_REMAP_PARTIALREMAP;
-	palSetGroupMode(GPIOB, PAL_PORT_BIT(1), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-	palSetGroupMode(GPIOB, PAL_PORT_BIT(0), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-	palSetGroupMode(GPIOB, PAL_PORT_BIT(5), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-
-	chThdSleepSeconds(2);
-
-	engineCalibrate();
-
-	/*while (TRUE)
-	 {
-	 for (i = 0; i <= 100; i += 1)
-	 {
-	 engineThrottle(i);
-	 chThdSleepMilliseconds(250);
-	 }
-
-	 chThdSleepSeconds(2);
-
-	 for (i = 100; i >= 0; i -= 1)
-	 {
-	 engineThrottle(i);
-	 chThdSleepMilliseconds(250);
-	 }
-
-	 chThdSleepSeconds(2);
-	 }*/
+	SetFlightParametersCommandHandler(0, 145, 145);
 }
 
 void callback(unsigned char buf[TX_PLOAD_WIDTH])
 {
-	//if(((char*)buf)[1] == 65)
-	//	palTogglePad(GPIOC, GPIOC_LED4);
+	if(chVTIsArmedI(&watchdog))
+	{
+		chVTReset(&watchdog);
+	}
 
+	chVTSet(&watchdog, S2ST(5), watchdog_expired, NULL);
 	HandleCommand(++buf);
 }
 
@@ -89,7 +64,16 @@ int main(void)
 	palSetPadMode(GPIOC, GPIOC_LED3, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOC, GPIOC_LED4, PAL_MODE_OUTPUT_PUSHPULL);
 
-	testEngine();
+	engineInit();
+
+	AFIO ->MAPR |= AFIO_MAPR_TIM3_REMAP_PARTIALREMAP;
+	palSetGroupMode(GPIOB, PAL_PORT_BIT(1), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
+	palSetGroupMode(GPIOB, PAL_PORT_BIT(0), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
+	palSetGroupMode(GPIOB, PAL_PORT_BIT(5), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
+
+	chThdSleepSeconds(2);
+
+	engineCalibrate();
 
 	extStart(&EXTD1, &extcfg);
 	extChannelEnable(&EXTD1, 0);
