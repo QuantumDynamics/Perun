@@ -59,16 +59,22 @@
 #define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
 #define TX_PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 
+#if HAL_USE_EXT
 
 void nrfIrqHandler(EXTDriver *extp, expchannel_t channel);
 
 #define NRFIRQLINECONFIG {EXT_CH_MODE_FALLING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB, nrfIrqHandler}
+
+#endif
 
 //*********************************************
 
 typedef void (*NRFCallback) (unsigned char[TX_PLOAD_WIDTH]);
 
 void fc_nrf_rx_mode(NRFCallback callback);
+void fc_nrf_tx_mode(void);
 int fc_nrf_test_spi_connection(void);
+
+void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH]);
 
 #endif

@@ -26,6 +26,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>fc_nrf.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/nrf_driver/fc_nrf.c</locationURI>
+		</link>
+		<link>
+			<name>fc_nrf.h</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/nrf_driver/fc_nrf.h</locationURI>
+		</link>
+		<link>
 			<name>fc_spi.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/nrf_driver/fc_spi.c</locationURI>

@@ -118,39 +118,8 @@ static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 	(void) argc;
 	(void) argv;
 
-	unsigned char buf[TX_PLOAD_WIDTH] =
-	{ 0 };
-	msg_t readResult = 0;
-
-	chprintf(chp, "Requesting...\r\n");
-
-	CreateRequestStatusCommandHandler(buf);
-
-	fc_transmit_and_wait(buf);
-
-//	fc_nrf_rx_mode(NULL);
-	fc_set_as_rx();
-
-	chprintf(chp, "In RX\r\n");
-
-	while (1)
-	{
-		unsigned char status = 0;
-		NRFRead(STATUS, &status, 1);
-
-		chprintf(chp, "%x ",status);
-
-		chThdSleepMilliseconds(10);
-	}
-
-//	fc_sync_read(buf);
-
-	chThdSleepSeconds(10);
-
-	fc_nrf_tx_mode();
 
 	chprintf(chp, "Received: ");
-	chprintf(chp, buf);
 	chprintf(chp, "\r\n");
 }
 

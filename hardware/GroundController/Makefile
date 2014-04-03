@@ -87,7 +87,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        main.c \
-       fc_nrf.c \
+       ../nrf_driver/fc_nrf.c \
        ../nrf_driver/fc_spi.c \
        usb/usbSetup.c \
        usb/usbShell.c \

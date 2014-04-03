@@ -24,6 +24,8 @@ BinarySemaphore NRFSemIRQ;
 static uint8_t txbuf[NRF_BUF_SIZE];
 unsigned char rx_buf[TX_PLOAD_WIDTH] = {0};	// NRF receive buffer
 
+unsigned char tx_buf[TX_PLOAD_WIDTH] = "A";
+
 #include "nrf_config.h"
 
 /*
@@ -46,7 +48,7 @@ static void NRFWriteReg(uint8_t reg, uint8_t val[], uint8_t size)
 	txbuf[0]=(reg);
 	memcpy(txbuf+1, val, size);
 
-	SPISendData(&NRF_SPI, txbuf, size+1);
+	SPISendData(&NRFSPI, txbuf, size+1);
 }
 
 /*
@@ -62,7 +64,7 @@ static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
  */
 static void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
 {
-	SPIExchangeData(&NRF_SPI, &command, outBuf, size);
+	SPIExchangeData(&NRFSPI, &command, outBuf, size);
 }
 
 
@@ -96,6 +98,7 @@ void fc_nrf_init_io(void)
   NRFSetCE(0);	// chip enable
 }
 
+#if HAL_USE_EXT
 void nrfIrqHandler(EXTDriver *extp, expchannel_t channel) {
   (void)extp;
   (void)channel;
@@ -105,6 +108,8 @@ void nrfIrqHandler(EXTDriver *extp, expchannel_t channel) {
 
   chBSemSignalI(&NRFSemIRQ);
 }
+
+#endif
 
 // setup NRF as receiver
 void fc_nrf_rx_mode(NRFCallback callback){
@@ -131,16 +136,53 @@ void fc_nrf_rx_mode(NRFCallback callback){
 	(void)chThdCreateStatic(myThreadWorkingArea, sizeof(myThreadWorkingArea), NORMALPRIO, fc_nrf_update, NULL);
 }
 
+void fc_nrf_tx_mode(void)
+{
+	fc_nrf_init_io();
+
+	NRFSetCE(0);
+
+	NRFWriteReg(NRF_WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);    // Writes TX_Address to nRF24L01
+	NRFWriteReg(NRF_WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH); // RX_Addr0 same as TX_Adr for Auto.Ack
+
+	NRFWriteSingleReg(NRF_WRITE_REG + EN_AA, 0x01);      // Enable Auto.Ack:Pipe0
+	NRFWriteSingleReg(NRF_WRITE_REG + EN_RXADDR, 0x01);  // Enable Pipe0
+	NRFWriteSingleReg(NRF_WRITE_REG + SETUP_RETR, 0x1a); // 500us + 86us, 10 retrans...
+	NRFWriteSingleReg(NRF_WRITE_REG + RF_CH, 40);        // Select RF channel 40
+	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, NRF_RF_SETUP_LNA_HCURR | NRF_RF_SETUP_PWR_0_dB);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
+	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, NRF_CFG_PWR_UP | NRF_CFG_CRCO | NRF_CFG_EN_CRC);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:TX. MAX_RT & TX_DS enabled..
+	NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);
+
+	NRFSetCE(1);
+}
+
 int fc_nrf_test_spi_connection(void){
 	uint8_t cmd[1] = { 0 };
 	uint8_t result[1] =	{ 0 };
 
 	cmd[0] = 0x07;
 
-	SPIExchangeData(&NRF_SPI, cmd, result, 1);
+	SPIExchangeData(&NRFSPI, cmd, result, 1);
 
 	if (result[0] == 0xE)
 		return 1;
 
 	return 0;
+}
+
+void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH])
+{
+	unsigned char sstatus = 0;
+
+	memcpy(tx_buf, buffer, TX_PLOAD_WIDTH);
+
+	NRFRead(STATUS, &sstatus, 1);
+
+	if ((sstatus & TX_DS) || (sstatus & MAX_RT))
+	{
+		NRFWriteSingleReg(FLUSH_TX, 0);
+		NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);       // write playload to TX_FIFO
+	}
+
+	NRFWriteSingleReg(NRF_WRITE_REG + STATUS, sstatus);  // clear RX_DR or TX_DS or MAX_RT interrupt flag
 }
