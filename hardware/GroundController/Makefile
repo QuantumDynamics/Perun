@@ -88,7 +88,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/chprintf.c \
        main.c \
        fc_nrf.c \
-       fc_spi.c \
+       ../nrf_driver/fc_spi.c \
        usb/usbSetup.c \
        usb/usbShell.c \
        remote_control.c        
@@ -123,7 +123,8 @@ ASMSRC = $(PORTASM)
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(CHIBIOS)/os/various/devices_lib/accel \
-         $(CHIBIOS)/os/various
+         $(CHIBIOS)/os/various \
+         ../nrf_driver
 
 #
 # Project, sources and paths
