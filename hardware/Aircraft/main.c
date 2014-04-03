@@ -30,10 +30,6 @@ static const EXTConfig extcfg =
 						{ EXT_CH_MODE_DISABLED, NULL },
 						{ EXT_CH_MODE_DISABLED, NULL },
 						{ EXT_CH_MODE_DISABLED, NULL },
-						{ EXT_CH_MODE_DISABLED, NULL },
-						{ EXT_CH_MODE_DISABLED, NULL },
-						{ EXT_CH_MODE_DISABLED, NULL },
-						{ EXT_CH_MODE_DISABLED, NULL },
 						{ EXT_CH_MODE_DISABLED, NULL }
 				}
 		};

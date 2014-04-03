@@ -5,11 +5,11 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693" moduleId="org.eclipse.cdt.core.settings" name="Default">
 				<externalSettings/>
 				<extensions>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -41,6 +41,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}\..\ChibiOS\os\hal\include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}\..\ChibiOS\boards\ST_STM32VL_DISCOVERY&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}\..\ChibiOS\os\hal\platforms\STM32F1xx&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}\..\nrf_driver&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def.932974026" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HAL_USE_PAL=TRUE"/>
@@ -57,6 +58,11 @@
 							<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.printsize.base.289791993" name="ARM Sourcery Windows GNU Print Size" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.printsize.base"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693.1486366115" name="fc_nrf.c" rcbsApplicability="disable" resourcePath="fc_nrf.c" toolsToInvoke="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.1266660044.1940712743">
+						<tool id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.1266660044.1940712743" name="ARM Sourcery Windows GCC C Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.1266660044">
+							<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.input.955870982" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.input"/>
+						</tool>
+					</fileInfo>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>

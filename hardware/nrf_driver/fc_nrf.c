@@ -12,7 +12,6 @@
 #include "fc_spi.h"
 
 #define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width
-#define NRF_PORT_CE		6	// NRF chip enable port pin
 
 static WORKING_AREA(myThreadWorkingArea, 128);
 NRFCallback nrfCallback;
@@ -24,6 +23,8 @@ BinarySemaphore NRFSemIRQ;
 #define NRF_BUF_SIZE 128
 static uint8_t txbuf[NRF_BUF_SIZE];
 unsigned char rx_buf[TX_PLOAD_WIDTH] = {0};	// NRF receive buffer
+
+#include "nrf_config.h"
 
 /*
  * Set CE to high/low
@@ -45,7 +46,7 @@ static void NRFWriteReg(uint8_t reg, uint8_t val[], uint8_t size)
 	txbuf[0]=(reg);
 	memcpy(txbuf+1, val, size);
 
-	SPISendData(&SPID1, txbuf, size+1);
+	SPISendData(&NRF_SPI, txbuf, size+1);
 }
 
 /*
@@ -61,15 +62,9 @@ static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
  */
 static void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
 {
-	SPIExchangeData(&SPID1, &command, outBuf, size);
+	SPIExchangeData(&NRF_SPI, &command, outBuf, size);
 }
 
-
-// Define a static transmit address
-unsigned char TX_ADDRESS[TX_ADR_WIDTH]  =
-{
-  0x34,0x43,0x10,0x10,0x01
-};
 
 msg_t fc_nrf_update(void* arg){
 	(void)arg;
@@ -142,7 +137,7 @@ int fc_nrf_test_spi_connection(void){
 
 	cmd[0] = 0x07;
 
-	SPIExchangeData(&NRFSPI, cmd, result, 1);
+	SPIExchangeData(&NRF_SPI, cmd, result, 1);
 
 	if (result[0] == 0xE)
 		return 1;

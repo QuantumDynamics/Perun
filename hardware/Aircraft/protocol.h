@@ -29,7 +29,7 @@ void RequestStatusCommandHandlerProxy(unsigned char* buffer);
 
 // Command Handlers
 void SetFlightParametersCommandHandler(unsigned char throttle, char rudderAngle, char elevatorAngle);
-void RequestStatusCommandHandler();
+void RequestStatusCommandHandler(void);
 
 // Controls
 void SetEngineThrottle(unsigned char throttle);

@@ -80,9 +80,9 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        main.c \
        drivers/engine.c \
-       fc_nrf.c \
-       fc_spi.c \
-       protocol.c \
+       ../nrf_driver/fc_spi.c \
+       ../nrf_driver/fc_nrf.c \
+       protocol.c 
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -113,7 +113,8 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various
+         $(CHIBIOS)/os/various \
+         ../nrf_driver
 
 #
 # Project, sources and paths

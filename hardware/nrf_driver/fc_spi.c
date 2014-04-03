@@ -52,7 +52,8 @@ static Mutex					SPIMtx; /* Mutex */
 /*
  * SPI configuration structure.
  */
-static const SPIConfig hs_spicfg = {NULL, GPIOA, GPIOA_SPI1NSS, HIGHSPEED_SPI_DIV};
+
+#include "spi_config.h"
 
 /*
  * Initialize the SPI interface
@@ -62,11 +63,7 @@ void SPIInit(void)
 	/*
 	 * SPI1 I/O pins setup.
 	 */
-	palSetPadMode(GPIOA, 5, PAL_MODE_STM32_ALTERNATE_PUSHPULL);     /* SCK. */
-	palSetPadMode(GPIOA, 6, PAL_MODE_STM32_ALTERNATE_PUSHPULL);     /* MISO.*/
-	palSetPadMode(GPIOA, 7, PAL_MODE_STM32_ALTERNATE_PUSHPULL);     /* MOSI.*/
-	palSetPadMode(GPIOA, GPIOA_SPI1NSS, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPad(GPIOA, GPIOA_SPI1NSS);
+	ConfigureSPIPins();
 
 	/*
 	 * Initialize Mutex

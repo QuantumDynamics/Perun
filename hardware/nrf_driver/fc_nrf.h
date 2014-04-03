@@ -52,23 +52,6 @@
 #define TX_PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 
 
-#define CE       8
-// CE_BIT:   Digital Input     Chip Enable Activates RX or TX mode
-
-#define CSN      9
-// CSN BIT:  Digital Input     SPI Chip Select
-
-#define IRQ      10
-// IRQ BIT:  Digital Output    Maskable interrupt pin
-
-#define NRFSPI SPID1
-
-#define NRFCEPORT GPIOB
-#define NRFCEPIN 4
-
-#define NRFIRQPORT GPIOB
-#define NRFIRQPIN 4
-
 void nrfIrqHandler(EXTDriver *extp, expchannel_t channel);
 
 #define NRFIRQLINECONFIG {EXT_CH_MODE_FALLING_EDGE | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOB, nrfIrqHandler}

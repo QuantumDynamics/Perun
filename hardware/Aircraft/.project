@@ -30,6 +30,26 @@
 			<locationURI>CHIBIOS/boards/ST_STM32VL_DISCOVERY</locationURI>
 		</link>
 		<link>
+			<name>fc_nrf.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/nrf_driver/fc_nrf.c</locationURI>
+		</link>
+		<link>
+			<name>fc_nrf.h</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/nrf_driver/fc_nrf.h</locationURI>
+		</link>
+		<link>
+			<name>fc_spi.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/nrf_driver/fc_spi.c</locationURI>
+		</link>
+		<link>
+			<name>fc_spi.h</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/nrf_driver/fc_spi.h</locationURI>
+		</link>
+		<link>
 			<name>os</name>
 			<type>2</type>
 			<locationURI>CHIBIOS/os</locationURI>
