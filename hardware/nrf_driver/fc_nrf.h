@@ -46,6 +46,14 @@
 #define RX_PW_P5        0x16  // 'RX payload width, pipe5' register address
 #define FIFO_STATUS     0x17  // 'FIFO Status Register' register address
 
+#define NRF_CFG_PRIM_RX 1
+#define NRF_CFG_PWR_UP	2
+#define NRF_CFG_CRCO	4
+#define NRF_CFG_EN_CRC	8
+
+#define NRF_RF_SETUP_LNA_HCURR 1
+#define NRF_RF_SETUP_PWR_0_dB  6
+
 //---------------------------------------------
 
 #define TX_ADR_WIDTH	5   // 5 unsigned chars TX(RX) address width

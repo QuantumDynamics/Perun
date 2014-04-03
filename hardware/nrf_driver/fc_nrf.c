@@ -119,8 +119,8 @@ void fc_nrf_rx_mode(NRFCallback callback){
 	NRFWriteSingleReg(NRF_WRITE_REG + EN_RXADDR, 0x01);  // Enable Pipe0
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_CH, 40);        // Select RF channel 40
 	NRFWriteSingleReg(NRF_WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH); // Select same RX payload width as TX Payload width
-	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, 0x07);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
-	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, 0x0f);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:RX. RX_DR enabled..
+	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, NRF_RF_SETUP_LNA_HCURR | NRF_RF_SETUP_PWR_0_dB);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
+	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, NRF_CFG_PRIM_RX | NRF_CFG_PWR_UP | NRF_CFG_CRCO | NRF_CFG_EN_CRC);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:RX. RX_DR enabled..
 
 	NRFSetCE(1);	// Set CE pin high to enable RX device
 	//  This device is now ready to receive one packet of 16 unsigned chars payload from a TX device sending to address
