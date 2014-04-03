@@ -24,17 +24,17 @@ typedef struct Command
 void HandleCommand(unsigned char* buffer);
 
 // Command Proxy
-void SetFlightParametersCommandHandlerProxy (unsigned char* buffer);
-void RequestStatusCommandHandlerProxy (unsigned char* buffer);
+void SetFlightParametersCommandHandlerProxy(unsigned char* buffer);
+void RequestStatusCommandHandlerProxy(unsigned char* buffer);
 
 // Command Handlers
-void SetFlightParametersCommandHandler (unsigned char throttle, char rudderAngle, char elevatorAngle);
-void RequestStatusCommandHandler ();
+void SetFlightParametersCommandHandler(unsigned char throttle, char rudderAngle, char elevatorAngle);
+void RequestStatusCommandHandler();
 
 // Controls
-void SetEngineThrottle (unsigned char throttle);
-void SetRudderAngle (char rudderAngle);
-void SetElevatorAngle (char elevatorAngle);
+void SetEngineThrottle(unsigned char throttle);
+void SetRudderAngle(char rudderAngle);
+void SetElevatorAngle(char elevatorAngle);
 
 // Create Command
 static inline void CreateSetFlightParametersCommand(unsigned char* outputBuffer, unsigned char throttle, char rudderAngle, char elevatorAngle)
@@ -45,9 +45,10 @@ static inline void CreateSetFlightParametersCommand(unsigned char* outputBuffer,
 	outputBuffer[3] = elevatorAngle;
 }
 
-static inline void CreateRequestStatusCommandHandler (unsigned char* outputBuffer)
+static inline void CreateRequestStatusCommandHandler(unsigned char* outputBuffer)
 {
-}
+	outputBuffer[0] = RequestStatus;
+	outputBuffer[1] = RequestStatus;
 }
 
 #endif

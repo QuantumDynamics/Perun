@@ -85,5 +85,8 @@ void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH]);
 void fc_transmit_and_wait(unsigned char buffer[TX_PLOAD_WIDTH]);
 void fc_sync_read(unsigned char * buf);
 
+void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size);
+
+void fc_set_as_rx(void);
 
 #endif

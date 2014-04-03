@@ -61,7 +61,7 @@ static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
 /*
  * Read byte from register
  */
-static void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
+void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
 {
 	SPIExchangeData(&SPID1, &command, outBuf, size);
 }
@@ -78,7 +78,7 @@ msg_t fc_nrf_update(void* arg)
 
 	for (;;)
 	{
-		chBSemWait(&NRFSemIRQ);
+		//chBSemWait(&NRFSemIRQ);
 
 		unsigned char status = 0;
 		NRFRead(STATUS, &status, 1);    // read register STATUS's value
@@ -100,9 +100,9 @@ msg_t fc_nrf_update(void* arg)
 
 void fc_sync_read(unsigned char * buf)
 {
-//	time_t endTime = tim
+	systime_t endTime = chTimeNow();
 
-	while (1)
+	while (chTimeElapsedSince(endTime) <= S2ST(3) )
 	{
 		unsigned char status = 0;
 
@@ -113,8 +113,12 @@ void fc_sync_read(unsigned char * buf)
 			NRFRead(RD_RX_PLOAD, buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
 			NRFWriteSingleReg(FLUSH_RX, 0);           // clear RX_FIFO
 
+			NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);
+
 			break;
 		}
+
+		NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);
 
 		chThdYield();
 	}
@@ -223,15 +227,33 @@ void fc_transmit_and_wait(unsigned char buffer[TX_PLOAD_WIDTH])
 {
 	fc_transmit(buffer);
 
-	while(1)
+	while (1)
 	{
 		unsigned char status = 0;
 
 		NRFRead(STATUS, &status, 1);
 
-		if((status & TX_DS) > 0)
+		if ((status & TX_DS) > 0)
 		{
+			NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);
 			return;
 		}
 	}
+}
+
+void fc_set_as_rx(void)
+{
+	unsigned char config;
+	unsigned char status;
+
+	NRFRead(STATUS, &status, 1);
+
+	if ((config & 1) != 0) // check for PRIM_RX
+		return;
+
+	config |= 1;
+
+	NRFWriteSingleReg(NRF_WRITE_REG + STATUS, config);
+
+	NRFSetCE(1);
 }

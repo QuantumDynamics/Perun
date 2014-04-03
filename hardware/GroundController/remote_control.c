@@ -8,7 +8,7 @@ static WORKING_AREA(remoteControlThreadArea, 128);
 
 static Thread * remoteControlThread = NULL;
 
-static volatile enabled = 0;
+static volatile int enabled = 0;
 
 static struct
 {
@@ -18,8 +18,10 @@ static struct
 } current =
 { 0, 145, 145 };
 
-static void remoteControl(void * _)
+static msg_t remoteControl(void * _)
 {
+	(void)_;
+
 	unsigned char sendBuffer[TX_PLOAD_WIDTH] = {0};
 
 	while (enabled == 1)
@@ -28,8 +30,10 @@ static void remoteControl(void * _)
 
 		fc_transmit(sendBuffer);
 
-		chThdSleepMilliseconds(10);
+		chThdSleepMilliseconds(500);
 	}
+
+	return 0;
 }
 
 void startRemoteControl(void)
