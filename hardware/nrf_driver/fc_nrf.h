@@ -15,6 +15,11 @@
 #define FLUSH_RX        0xE2  // Define flush RX register command
 #define REUSE_TX_PL     0xE3  // Define reuse TX payload register command
 #define NOP             0xFF  // Define No Operation, might be used to read status register
+#define WR_ACK_PAYLOAD	0xA8
+#define ACTIVATE		0x50
+
+#define ACTIVATE_ARG	0x73
+
 //***************************************************
 #define RX_DR    0x40
 #define TX_DS    0x20
@@ -46,6 +51,15 @@
 #define RX_PW_P5        0x16  // 'RX payload width, pipe5' register address
 #define FIFO_STATUS     0x17  // 'FIFO Status Register' register address
 
+#define FEATURE			0x1D
+#define NRF_FEATURE_EN_DPL 4
+#define NRF_FEATURE_PAYLOAD_WITH_ACK 2
+
+#define DYNPD			0x1C
+#define NRF_DYNPD_DPL0	1
+
+#define NRF_SETUP_RETR_750	0x2
+
 #define NRF_CFG_PRIM_RX 1
 #define NRF_CFG_PWR_UP	2
 #define NRF_CFG_CRCO	4
@@ -53,6 +67,9 @@
 
 #define NRF_RF_SETUP_LNA_HCURR 1
 #define NRF_RF_SETUP_PWR_0_dB  6
+
+#define NRF_MODE_PTX	0
+#define NRF_MODE_PRX	NRF_CFG_PRIM_RX
 
 //---------------------------------------------
 
@@ -71,10 +88,13 @@ void nrfIrqHandler(EXTDriver *extp, expchannel_t channel);
 
 typedef void (*NRFCallback) (unsigned char[TX_PLOAD_WIDTH]);
 
-void fc_nrf_rx_mode(NRFCallback callback);
-void fc_nrf_tx_mode(void);
+void fc_nrf_init(NRFCallback callback, unsigned char mode);
 int fc_nrf_test_spi_connection(void);
 
 void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH]);
+void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH]);
+void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH]);
+
+void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size);
 
 #endif

@@ -78,7 +78,7 @@ int main(void)
 
 	SPIInit();
 
-	fc_nrf_rx_mode(callback);
+	fc_nrf_init(callback, NRF_MODE_PRX);
 
 	pwmEnableChannel(&ENGINE_PWM, 2, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 	pwmEnableChannel(&ENGINE_PWM, 1, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);

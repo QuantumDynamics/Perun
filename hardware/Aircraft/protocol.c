@@ -1,10 +1,11 @@
 #include "protocol.h"
 #include "drivers/engine.h"
+#include "fc_nrf.h"
 
 Command CommandSet[] =
 {
 	 { SetFlightParametersCommand, SetFlightParametersCommandHandlerProxy },
-	 { RequestStatus, SetFlightParametersCommandHandlerProxy }
+	 { RequestStatus, RequestStatusCommandHandlerProxy }
 };
 
 void HandleCommand(unsigned char* buffer)
@@ -19,6 +20,19 @@ void HandleCommand(unsigned char* buffer)
 			break;
 		}
 	}
+}
+
+void RequestStatusCommandHandler(void)
+{
+	unsigned char buf[TX_PLOAD_WIDTH] = "ABCD";
+	fc_put_ack_payload(buf);
+
+	palSetPad(GPIOC, GPIOC_LED4);
+}
+
+void RequestStatusCommandHandlerProxy(unsigned char * buffer)
+{
+	RequestStatusCommandHandler();
 }
 
 // Command Proxy

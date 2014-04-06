@@ -51,7 +51,7 @@ int main(void)
 
 	SPIInit();
 
-	fc_nrf_tx_mode();
+	fc_nrf_init(NULL, NRF_MODE_PTX);
 
 	if(fc_nrf_test_spi_connection() == 1) {
 		palSetPad(GPIOD, GPIOD_LED3);

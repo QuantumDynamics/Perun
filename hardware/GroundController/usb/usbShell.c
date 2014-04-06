@@ -118,8 +118,31 @@ static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 	(void) argc;
 	(void) argv;
 
+	unsigned char req[TX_PLOAD_WIDTH] =
+	{ 0 };
+	unsigned char resp[TX_PLOAD_WIDTH] =
+	{ 0 };
+	unsigned char f = 0;
 
-	chprintf(chp, "Received: ");
+	NRFRead(FEATURE, &f, 1);
+
+	chprintf(chp, "FEATURE: %X\n\r", f);
+
+	f = 0;
+
+	NRFRead(FEATURE, &f, 1);
+
+	chprintf(chp, "FEATURE: %X\n\r", f);
+
+	CreateRequestStatusCommandHandler(req);
+
+	chprintf(chp, "Requesting");
+	fc_transmit(req);
+	chprintf(chp, ".");
+	//fc_request_reply(req, resp);
+
+	chprintf(chp, "Received:");
+	chprintf(chp, "'%s'", resp);
 	chprintf(chp, "\r\n");
 }
 
