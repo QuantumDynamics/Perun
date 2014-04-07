@@ -64,14 +64,16 @@ static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
  */
 void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
 {
-	unsigned char input[1] = {command};
+	unsigned char input[1] =
+	{ command };
 
 	SPIExchangeData(&NRFSPI, input, outBuf, size);
 }
 
 void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize)
 {
-	uint8_t input[1] = {reg};
+	uint8_t input[1] =
+	{ reg };
 
 	SPIWriteRead(&NRFSPI, input, 1, out, recvSize);
 }
@@ -155,9 +157,12 @@ void fc_nrf_init(NRFCallback callback, unsigned char mode)
 	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, mode | NRF_CFG_PWR_UP | NRF_CFG_CRCO | NRF_CFG_EN_CRC);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:TX. MAX_RT & TX_DS enabled..
 	NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);
 
-	NRFWriteSingleReg(DYNPD,  0x01);
+	NRFWriteSingleReg(DYNPD, 0x01);
 
-	NRFSetCE(1);
+	if (mode == NRF_MODE_PRX)
+	{
+		NRFSetCE(1);
+	}
 
 	if (callback != NULL)
 	{
@@ -196,9 +201,13 @@ void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH])
 	{
 		NRFWriteSingleReg(NRF_WRITE_REG + STATUS, sstatus);  // clear RX_DR or TX_DS or MAX_RT interrupt flag
 		NRFWriteSingleReg(FLUSH_TX, 0);
-
-		NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);       // write playload to TX_FIFO
 	}
+
+	NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);       // write playload to TX_FIFO
+
+	NRFSetCE(1);
+	chThdSleepMicroseconds(100);
+	NRFSetCE(0);
 }
 
 void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH])
