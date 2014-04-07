@@ -45,3 +45,5 @@ int SPISendData(SPIDriver *spip, uint8_t *tx, size_t size);
  */
 int SPIReceiveData(SPIDriver *spip, uint8_t *rx, size_t size); 
 
+void SPIWriteRead(SPIDriver *spip, uint8_t * input, size_t inputSize, uint8_t * output, size_t outputSize);
+

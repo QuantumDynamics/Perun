@@ -52,6 +52,8 @@ void callback(unsigned char buf[TX_PLOAD_WIDTH])
 	HandleCommand(++buf);
 }
 
+unsigned char text[] = "ZBCD";
+
 int main(void)
 {
 	halInit();
@@ -79,6 +81,8 @@ int main(void)
 	SPIInit();
 
 	fc_nrf_init(callback, NRF_MODE_PRX);
+
+	fc_put_ack_payload(text);
 
 	pwmEnableChannel(&ENGINE_PWM, 2, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 	pwmEnableChannel(&ENGINE_PWM, 1, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);

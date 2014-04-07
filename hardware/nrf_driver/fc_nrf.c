@@ -64,7 +64,16 @@ static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
  */
 void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
 {
-	SPIExchangeData(&NRFSPI, &command, outBuf, size);
+	unsigned char input[1] = {command};
+
+	SPIExchangeData(&NRFSPI, input, outBuf, size);
+}
+
+void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize)
+{
+	uint8_t input[1] = {reg};
+
+	SPIWriteRead(&NRFSPI, input, 1, out, recvSize);
 }
 
 msg_t fc_nrf_update(void* arg)
@@ -113,26 +122,40 @@ void nrfIrqHandler(EXTDriver *extp, expchannel_t channel)
 
 #endif
 
-
 void fc_nrf_init(NRFCallback callback, unsigned char mode)
 {
+	unsigned char feature = 0;
+
 	fc_nrf_init_io();
 
 	chBSemInit(&NRFSemIRQ, TRUE);
 
 	NRFSetCE(0);
 
+	NRFWriteSingleReg(NRF_WRITE_REG + FEATURE, NRF_FEATURE_EN_DPL | NRF_FEATURE_PAYLOAD_WITH_ACK);
+
+	nrf_read_reg(FEATURE, &feature, 1);
+
+	if (((feature & NRF_FEATURE_EN_DPL) == 0) || ((feature & NRF_FEATURE_PAYLOAD_WITH_ACK) == 0))
+	{
+		NRFWriteSingleReg(ACTIVATE, ACTIVATE_ARG);
+
+		NRFWriteSingleReg(NRF_WRITE_REG + FEATURE, NRF_FEATURE_EN_DPL | NRF_FEATURE_PAYLOAD_WITH_ACK);
+	}
+
 	NRFWriteReg(NRF_WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);    // Writes TX_Address to nRF24L01
 	NRFWriteReg(NRF_WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH); // RX_Addr0 same as TX_Adr for Auto.Ack
 
 	NRFWriteSingleReg(NRF_WRITE_REG + EN_AA, 0x01);      // Enable Auto.Ack:Pipe0
 	NRFWriteSingleReg(NRF_WRITE_REG + EN_RXADDR, 0x01);  // Enable Pipe0
-	NRFWriteSingleReg(NRF_WRITE_REG + SETUP_RETR, 0x1a); // 500us + 86us, 10 retrans...
+	NRFWriteSingleReg(NRF_WRITE_REG + SETUP_RETR, NRF_SETUP_RETR_750 | 10); // 500us + 86us, 10 retrans...
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_CH, 40);        // Select RF channel 40
 	NRFWriteSingleReg(NRF_WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH); // Select same RX payload width as TX Payload width
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, NRF_RF_SETUP_LNA_HCURR | NRF_RF_SETUP_PWR_0_dB);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
 	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, mode | NRF_CFG_PWR_UP | NRF_CFG_CRCO | NRF_CFG_EN_CRC);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:TX. MAX_RT & TX_DS enabled..
 	NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);
+
+	NRFWriteSingleReg(DYNPD,  0x01);
 
 	NRFSetCE(1);
 
@@ -195,7 +218,7 @@ void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char
 				palTogglePad(GPIOD, 14);
 			}
 
-			NRFRead(RD_RX_PLOAD, responseBuffer, TX_PLOAD_WIDTH);
+			nrf_read_reg(RD_RX_PLOAD, responseBuffer, TX_PLOAD_WIDTH);
 			NRFWriteSingleReg(FLUSH_RX, 0);
 
 			NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);

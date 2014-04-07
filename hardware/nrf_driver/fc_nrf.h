@@ -58,7 +58,7 @@
 #define DYNPD			0x1C
 #define NRF_DYNPD_DPL0	1
 
-#define NRF_SETUP_RETR_750	0x2
+#define NRF_SETUP_RETR_750	0x20
 
 #define NRF_CFG_PRIM_RX 1
 #define NRF_CFG_PWR_UP	2
@@ -96,5 +96,7 @@ void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char
 void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH]);
 
 void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size);
+
+void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize);
 
 #endif

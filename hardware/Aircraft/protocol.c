@@ -27,7 +27,7 @@ void RequestStatusCommandHandler(void)
 	unsigned char buf[TX_PLOAD_WIDTH] = "ABCD";
 	fc_put_ack_payload(buf);
 
-	palSetPad(GPIOC, GPIOC_LED4);
+	palTogglePad(GPIOC, GPIOC_LED4);
 }
 
 void RequestStatusCommandHandlerProxy(unsigned char * buffer)

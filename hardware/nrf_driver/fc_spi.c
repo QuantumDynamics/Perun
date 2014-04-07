@@ -1,29 +1,29 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+ ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+ 2011,2012 Giovanni Di Sirio.
 
-    This file is part of ChibiOS/RT.
+ This file is part of ChibiOS/RT.
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+ ChibiOS/RT is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ ChibiOS/RT is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-                                      ---
+ ---
 
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
-*/
+ A special exception to the GPL can be applied should you wish to distribute
+ a combined work that includes ChibiOS/RT, without being obliged to provide
+ the source code for any proprietary components. See the file exception.txt
+ for full details of how and when the exception can be applied.
+ */
 
 #include "ch.h"
 #include "hal.h"
@@ -47,7 +47,7 @@
 /*
  * Mutex to lock output buffer
  */
-static Mutex					SPIMtx; /* Mutex */
+static Mutex SPIMtx; /* Mutex */
 
 /*
  * SPI configuration structure.
@@ -71,13 +71,14 @@ void SPIInit(void)
 	chMtxInit(&SPIMtx); /* Mutex initialization before use */
 }
 
-int SPIExchangeDataI(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size) {
+int SPIExchangeDataI(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size)
+{
 	//chMtxLock(&SPIMtx);
 
 	/*
 	 * Do exchange between device and MCU.
 	 */
-	spiStartExchangeI(spip, size, tx, rx);  /* Atomic transfer operations.      */
+	spiStartExchangeI(spip, size, tx, rx); /* Atomic transfer operations.      */
 
 	return 0;
 }
@@ -85,18 +86,19 @@ int SPIExchangeDataI(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size) {
 /*
  * SPI bus exchange routine
  */
-int SPIExchangeData(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size) {
+int SPIExchangeData(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size)
+{
 	chMtxLock(&SPIMtx);
 
 	/*
 	 * Do exchange between device and MCU.
 	 */
-	spiAcquireBus(spip);              /* Acquire ownership of the bus.    */
-	spiStart(spip, &hs_spicfg);       /* Setup transfer parameters.       */
-	spiSelect(spip);                  /* Slave Select assertion.          */
-	spiExchange(spip, size, tx, rx);  /* Atomic transfer operations.      */
-	spiUnselect(spip);                /* Slave Select de-assertion.       */
-	spiReleaseBus(spip);              /* Ownership release.               */
+	spiAcquireBus(spip); /* Acquire ownership of the bus.    */
+	spiStart(spip, &hs_spicfg); /* Setup transfer parameters.       */
+	spiSelect(spip); /* Slave Select assertion.          */
+	spiExchange(spip, size, tx, rx); /* Atomic transfer operations.      */
+	spiUnselect(spip); /* Slave Select de-assertion.       */
+	spiReleaseBus(spip); /* Ownership release.               */
 
 	chMtxUnlock();
 
@@ -106,20 +108,21 @@ int SPIExchangeData(SPIDriver *spip, uint8_t *tx, uint8_t *rx, size_t size) {
 /*
  * SPI bus send routine
  */
-int SPISendData(SPIDriver *spip, uint8_t *tx, size_t size) {
+int SPISendData(SPIDriver *spip, uint8_t *tx, size_t size)
+{
 
 	chMtxLock(&SPIMtx);
 
 	/*
 	 * Do exchange between device and MCU.
 	 */
-	spiAcquireBus(spip);              /* Acquire ownership of the bus.    */
-	spiStart(spip, &hs_spicfg);       /* Setup transfer parameters.       */
-	spiSelect(spip);                  /* Slave Select assertion.          */
-	spiSend(spip, size, tx);					/* Send command											*/
-	spiUnselect(spip);                /* Slave Select de-assertion.       */
+	spiAcquireBus(spip); /* Acquire ownership of the bus.    */
+	spiStart(spip, &hs_spicfg); /* Setup transfer parameters.       */
+	spiSelect(spip); /* Slave Select assertion.          */
+	spiSend(spip, size, tx); /* Send command											*/
+	spiUnselect(spip); /* Slave Select de-assertion.       */
 	spiStop(spip);
-	spiReleaseBus(spip);              /* Ownership release.               */
+	spiReleaseBus(spip); /* Ownership release.               */
 
 	chMtxUnlock();
 
@@ -129,22 +132,42 @@ int SPISendData(SPIDriver *spip, uint8_t *tx, size_t size) {
 /*
  * SPI bus receive routine
  */
-int SPIReceiveData(SPIDriver *spip, uint8_t *rx, size_t size) {
+int SPIReceiveData(SPIDriver *spip, uint8_t *rx, size_t size)
+{
 
 	chMtxLock(&SPIMtx);
 
 	/*
 	 * Do exchange between device and MCU.
 	 */
-	spiAcquireBus(spip);              /* Acquire ownership of the bus.    */
-	spiStart(spip, &hs_spicfg);       /* Setup transfer parameters.       */
-	spiSelect(spip);                  /* Slave Select assertion.          */
+	spiAcquireBus(spip); /* Acquire ownership of the bus.    */
+	spiStart(spip, &hs_spicfg); /* Setup transfer parameters.       */
+	spiSelect(spip); /* Slave Select assertion.          */
 	spiReceive(spip, size, rx);
-	spiUnselect(spip);                /* Slave Select de-assertion.       */
-	spiReleaseBus(spip);              /* Ownership release.               */
+	spiUnselect(spip); /* Slave Select de-assertion.       */
+	spiReleaseBus(spip); /* Ownership release.               */
 
 	chMtxUnlock();
 
 	return 0;
+}
+
+void SPIWriteRead(SPIDriver *spip, uint8_t * input, size_t inputSize, uint8_t * output, size_t outputSize)
+{
+	chMtxLock(&SPIMtx);
+
+	/*
+	 * Do exchange between device and MCU.
+	 */
+	spiAcquireBus(spip); /* Acquire ownership of the bus.    */
+	spiStart(spip, &hs_spicfg); /* Setup transfer parameters.       */
+	spiSelect(spip); /* Slave Select assertion.          */
+	spiSend(spip, inputSize, input);
+	spiReceive(spip, outputSize, output);
+	spiUnselect(spip); /* Slave Select de-assertion.       */
+	spiReleaseBus(spip); /* Ownership release.               */
+
+	chMtxUnlock();
+
 }
 
