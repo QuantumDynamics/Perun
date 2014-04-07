@@ -17,8 +17,10 @@
 #define NOP             0xFF  // Define No Operation, might be used to read status register
 #define WR_ACK_PAYLOAD	0xA8
 #define ACTIVATE		0x50
+#define RD_RX_PLD_WID	0x60
 
 #define ACTIVATE_ARG	0x73
+
 
 //***************************************************
 #define RX_DR    0x40
@@ -94,8 +96,6 @@ int fc_nrf_test_spi_connection(void);
 void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH]);
 void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH]);
 void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH]);
-
-void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size);
 
 void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize);
 

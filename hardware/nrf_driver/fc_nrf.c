@@ -59,16 +59,6 @@ static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
 	NRFWriteReg(reg, &val, 1);
 }
 
-/*
- * Read byte from register
- */
-void NRFRead(uint8_t command, uint8_t *outBuf, uint8_t size)
-{
-	unsigned char input[1] =
-	{ command };
-
-	SPIExchangeData(&NRFSPI, input, outBuf, size);
-}
 
 void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize)
 {
@@ -87,11 +77,11 @@ msg_t fc_nrf_update(void* arg)
 		chBSemWait(&NRFSemIRQ);
 
 		unsigned char status = 0;
-		NRFRead(STATUS, &status, 1);    // read register STATUS's value
+		nrf_read_reg(STATUS, &status, 1);    // read register STATUS's value
 
 		if (status & RX_DR)
 		{				// if receive data ready (TX_DS) interrupt
-			NRFRead(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
+			nrf_read_reg(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
 			NRFWriteSingleReg(FLUSH_RX, 0);           // clear RX_FIFO
 
 			nrfCallback(rx_buf);
@@ -155,7 +145,6 @@ void fc_nrf_init(NRFCallback callback, unsigned char mode)
 	NRFWriteSingleReg(NRF_WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH); // Select same RX payload width as TX Payload width
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, NRF_RF_SETUP_LNA_HCURR | NRF_RF_SETUP_PWR_0_dB);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
 	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, mode | NRF_CFG_PWR_UP | NRF_CFG_CRCO | NRF_CFG_EN_CRC);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:TX. MAX_RT & TX_DS enabled..
-	NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);
 
 	NRFWriteSingleReg(DYNPD, 0x01);
 
@@ -195,7 +184,7 @@ void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH])
 
 	memcpy(tx_buf, buffer, TX_PLOAD_WIDTH);
 
-	NRFRead(STATUS, &sstatus, 1);
+	nrf_read_reg(STATUS, &sstatus, 1);
 
 	if ((sstatus & TX_DS) || (sstatus & MAX_RT))
 	{
@@ -218,7 +207,7 @@ void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char
 
 	while (1)
 	{
-		NRFRead(STATUS, &status, 1);
+		nrf_read_reg(STATUS, &status, 1);
 
 		if (status & TX_DS)
 		{

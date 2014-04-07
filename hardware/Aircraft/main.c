@@ -49,7 +49,7 @@ void callback(unsigned char buf[TX_PLOAD_WIDTH])
 	}
 
 	chVTSet(&watchdog, S2ST(5), watchdog_expired, NULL);
-	HandleCommand(++buf);
+	HandleCommand(buf);
 }
 
 unsigned char text[] = "ZBCD";
