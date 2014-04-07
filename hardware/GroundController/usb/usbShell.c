@@ -3,6 +3,7 @@
 #include "shell.h"
 #include "chprintf.h"
 #include "stdlib.h"
+#include "string.h"
 
 #include "usbSetup.h"
 #include "fc_spi.h"
@@ -108,11 +109,6 @@ static void cmd_stop(BaseSequentialStream *chp, int argc, char *argv[])
 	stopRemoteControl();
 }
 
-static void handler(unsigned char buf[TX_PLOAD_WIDTH])
-{
-	chprintf(&SDU1, ".");
-}
-
 static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 {
 	(void) argc;
@@ -140,6 +136,32 @@ static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 	chprintf(chp, "\r\n");
 }
 
+static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[])
+{
+	uint8_t buffer[TX_PLOAD_WIDTH] =  {0};
+	uint8_t tmp = FetchFromBuffer;
+	uint8_t i, len;
+
+	buffer[0] = RequestStatus;
+	len = strlen(argv[0]);
+
+	for(i = 0; i < len; i++)
+	{
+		buffer[1+i] = (argv[0])[i];
+	}
+
+	chprintf(chp, "Requested...\r\n");
+
+	fc_transmit(buffer);
+
+	chThdSleepMicroseconds(1000);
+
+	chprintf(chp, "Fettching response\r\n");
+	fc_request_reply(&tmp, buffer);
+
+	chprintf(chp, "Response: %s\r\n", buffer);
+}
+
 const ShellCommand commands[] =
 		{
 				{ "leds", cmd_leds },
@@ -147,6 +169,7 @@ const ShellCommand commands[] =
 				{ "start", cmd_start },
 				{ "stop", cmd_stop },
 				{ "req", cmd_req },
+				{ "echo", cmd_echo },
 				{ NULL, NULL }
 		};
 
