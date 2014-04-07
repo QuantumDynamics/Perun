@@ -1,0 +1,4 @@
+#Copy as shared.settings.mk and adjust to your environment
+
+OPENOCD= openoncd #Path to OpenOCD
+
