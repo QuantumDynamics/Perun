@@ -70,6 +70,10 @@
 #define NRF_RF_SETUP_LNA_HCURR 1
 #define NRF_RF_SETUP_PWR_0_dB  6
 
+#define OBSERVE_TX		0x08
+#define OBSERVE_TX_PLOS_MASK	0xE0
+#define OBSERVE_TX_ARC_MASK	0x0E
+
 #define NRF_MODE_PTX	0
 #define NRF_MODE_PRX	NRF_CFG_PRIM_RX
 
@@ -98,5 +102,7 @@ void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char
 void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH]);
 
 void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize);
+
+void fc_reset_cnt(void);
 
 #endif

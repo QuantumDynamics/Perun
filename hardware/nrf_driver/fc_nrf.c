@@ -232,3 +232,9 @@ void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH])
 {
 	NRFWriteReg(WR_ACK_PAYLOAD, buffer, TX_PLOAD_WIDTH);
 }
+
+void fc_reset_cnt(void)
+{
+//	NRFWriteSingleReg(RF_CH, 40);
+	NRFWriteSingleReg(OBSERVE_TX, 0);
+}

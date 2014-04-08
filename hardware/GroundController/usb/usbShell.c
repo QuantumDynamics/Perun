@@ -115,9 +115,9 @@ static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 	(void) argv;
 
 	unsigned char req[TX_PLOAD_WIDTH] =
-	{ 0 };
+			{ 0 };
 	unsigned char resp[TX_PLOAD_WIDTH] =
-	{ 0 };
+			{ 0 };
 	unsigned char s = 0;
 
 	nrf_read_reg(STATUS, &s, 1);
@@ -138,16 +138,19 @@ static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 
 static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[])
 {
-	uint8_t buffer[TX_PLOAD_WIDTH] =  {0};
+	(void) argc;
+
+	uint8_t buffer[TX_PLOAD_WIDTH] =
+	{ 0 };
 	uint8_t tmp = FetchFromBuffer;
 	uint8_t i, len;
 
 	buffer[0] = RequestStatus;
 	len = strlen(argv[0]);
 
-	for(i = 0; i < len; i++)
+	for (i = 0; i < len; i++)
 	{
-		buffer[1+i] = (argv[0])[i];
+		buffer[1 + i] = (argv[0])[i];
 	}
 
 	chprintf(chp, "Requested...\r\n");
@@ -162,6 +165,33 @@ static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[])
 	chprintf(chp, "Response: %s\r\n", buffer);
 }
 
+void cmd_status(BaseSequentialStream * chp, int argc, char * argv[])
+{
+	(void) argc;
+	(void) argv;
+
+	uint8_t nrfStatus = 0;
+	uint8_t observeTx = 0;
+
+	nrf_read_reg(STATUS, &nrfStatus, 1);
+	nrf_read_reg(OBSERVE_TX, &observeTx, 1);
+
+	chprintf(chp, "NRF Status:\t%X\r\n", nrfStatus);
+	chprintf(chp, "NRF Lost packets:\t%d\r\n", (observeTx & OBSERVE_TX_PLOS_MASK) >> 4);
+	chprintf(chp, "NRF Retrasmitted count:\t%d\r\n", observeTx & OBSERVE_TX_ARC_MASK);
+}
+
+void cmd_reset_cnt(BaseSequentialStream * chp, int argc, char * argv[])
+{
+	(void) argc;
+	(void) argv;
+
+	chprintf(chp, "Resetting RF counters\r\n\r\n");
+	fc_reset_cnt();
+
+	cmd_status(chp, argc, argv);
+}
+
 const ShellCommand commands[] =
 		{
 				{ "leds", cmd_leds },
@@ -170,6 +200,8 @@ const ShellCommand commands[] =
 				{ "stop", cmd_stop },
 				{ "req", cmd_req },
 				{ "echo", cmd_echo },
+				{ "status", cmd_status },
+				{ "reset_cnt", cmd_reset_cnt },
 				{ NULL, NULL }
 		};
 
