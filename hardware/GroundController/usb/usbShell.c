@@ -154,7 +154,7 @@ static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[])
 
 	fc_transmit(buffer);
 
-	chThdSleepMicroseconds(1000);
+	chThdSleepMicroseconds(2000);
 
 	chprintf(chp, "Fettching response\r\n");
 	fc_request_reply(&tmp, buffer);

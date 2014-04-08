@@ -76,13 +76,11 @@ int main(void)
 	engineCalibrate();
 
 	extStart(&EXTD1, &extcfg);
-	extChannelEnable(&EXTD1, 0);
+	//extChannelEnable(&EXTD1, 5);
 
 	SPIInit();
 
 	fc_nrf_init(callback, NRF_MODE_PRX);
-
-	fc_put_ack_payload(text);
 
 	pwmEnableChannel(&ENGINE_PWM, 2, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 	pwmEnableChannel(&ENGINE_PWM, 1, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);

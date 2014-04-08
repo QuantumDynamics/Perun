@@ -74,7 +74,7 @@ msg_t fc_nrf_update(void* arg)
 
 	for (;;)
 	{
-		chBSemWait(&NRFSemIRQ);
+		//chBSemWait(&NRFSemIRQ);
 
 		unsigned char status = 0;
 		nrf_read_reg(STATUS, &status, 1);    // read register STATUS's value
@@ -83,9 +83,12 @@ msg_t fc_nrf_update(void* arg)
 		{				// if receive data ready (TX_DS) interrupt
 			nrf_read_reg(RD_RX_PLOAD, rx_buf, TX_PLOAD_WIDTH);     // read playload to rx_buf
 			NRFWriteSingleReg(FLUSH_RX, 0);           // clear RX_FIFO
+			//NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);
 
 			nrfCallback(rx_buf);
 		}
+
+		chBSemReset(&NRFSemIRQ, TRUE);
 
 		NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);     // clear RX_DR or TX_DS or MAX_RT interrupt flag
 		chThdSleepMilliseconds(10);

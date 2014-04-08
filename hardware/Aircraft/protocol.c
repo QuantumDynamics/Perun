@@ -26,7 +26,7 @@ void RequestStatusCommandHandler(unsigned char * buffer)
 {
 	fc_put_ack_payload(buffer);
 
-	palTogglePad(GPIOC, GPIOC_LED4);
+	//palTogglePad(GPIOC, GPIOC_LED4);
 }
 
 void RequestStatusCommandHandlerProxy(unsigned char * buffer)
