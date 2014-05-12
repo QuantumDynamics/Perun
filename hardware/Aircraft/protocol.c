@@ -1,6 +1,7 @@
 #include "protocol.h"
 #include "drivers/engine.h"
 #include "fc_nrf.h"
+#include "drivers/MPU6050.h"
 
 Command CommandSet[] =
 {
@@ -24,9 +25,15 @@ void HandleCommand(unsigned char* buffer)
 
 void RequestStatusCommandHandler(unsigned char * buffer)
 {
-	fc_put_ack_payload(buffer);
+	(void)buffer;
+	if(MPUtestConnection()) {
+		fc_put_ack_payload("OK");
+	} else
+	{
+		fc_put_ack_payload("CHUJOWO");
+	}
 
-	//palTogglePad(GPIOC, GPIOC_LED4);
+	palTogglePad(GPIOC, GPIOC_LED4);
 }
 
 void RequestStatusCommandHandlerProxy(unsigned char * buffer)

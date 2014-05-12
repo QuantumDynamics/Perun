@@ -54,7 +54,7 @@
 /*
  * ADC driver system settings.
  */
-#define STM32_ADC_USE_ADC1                  TRUE
+#define STM32_ADC_USE_ADC1                  FALSE
 #define STM32_ADC_ADC1_DMA_PRIORITY         2
 #define STM32_ADC_ADC1_IRQ_PRIORITY         6
 
@@ -93,10 +93,10 @@
  * I2C driver system settings.
  */
 #define STM32_I2C_USE_I2C1                  FALSE
-#define STM32_I2C_USE_I2C2                  FALSE
+#define STM32_I2C_USE_I2C2                  TRUE
 #define STM32_I2C_I2C1_IRQ_PRIORITY         5
-#define STM32_I2C_I2C2_IRQ_PRIORITY         5
-#define STM32_I2C_I2C1_DMA_PRIORITY         3
+#define STM32_I2C_I2C2_IRQ_PRIORITY         15
+#define STM32_I2C_I2C1_DMA_PRIORITY         5
 #define STM32_I2C_I2C2_DMA_PRIORITY         3
 #define STM32_I2C_I2C1_DMA_ERROR_HOOK()     chSysHalt()
 #define STM32_I2C_I2C2_DMA_ERROR_HOOK()     chSysHalt()

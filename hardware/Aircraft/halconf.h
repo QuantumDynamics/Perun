@@ -48,7 +48,7 @@
  * @brief   Enables the ADC subsystem.
  */
 #if !defined(HAL_USE_ADC) || defined(__DOXYGEN__)
-#define HAL_USE_ADC                 TRUE
+#define HAL_USE_ADC                 FALSE
 #endif
 
 /**
@@ -76,7 +76,7 @@
  * @brief   Enables the I2C subsystem.
  */
 #if !defined(HAL_USE_I2C) || defined(__DOXYGEN__)
-#define HAL_USE_I2C                 FALSE
+#define HAL_USE_I2C                 TRUE
 #endif
 
 /**
@@ -165,7 +165,7 @@
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(ADC_USE_WAIT) || defined(__DOXYGEN__)
-#define ADC_USE_WAIT                TRUE
+#define ADC_USE_WAIT                FALSE
 #endif
 
 /**
@@ -173,7 +173,7 @@
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(ADC_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
-#define ADC_USE_MUTUAL_EXCLUSION    TRUE
+#define ADC_USE_MUTUAL_EXCLUSION    FALSE
 #endif
 
 /*===========================================================================*/
@@ -184,7 +184,7 @@
  * @brief   Sleep mode related APIs inclusion switch.
  */
 #if !defined(CAN_USE_SLEEP_MODE) || defined(__DOXYGEN__)
-#define CAN_USE_SLEEP_MODE          TRUE
+#define CAN_USE_SLEEP_MODE          FALSE
 #endif
 
 /*===========================================================================*/
@@ -213,7 +213,7 @@
  * @brief   Enables an event sources for incoming packets.
  */
 #if !defined(MAC_USE_EVENTS) || defined(__DOXYGEN__)
-#define MAC_USE_EVENTS              TRUE
+#define MAC_USE_EVENTS              FALSE
 #endif
 
 /*===========================================================================*/
@@ -229,7 +229,7 @@
  *          use a DMA channel and heavily loads the CPU.
  */
 #if !defined(MMC_NICE_WAITING) || defined(__DOXYGEN__)
-#define MMC_NICE_WAITING            TRUE
+#define MMC_NICE_WAITING            FALSE
 #endif
 
 /*===========================================================================*/
@@ -260,7 +260,7 @@
  *          lower priority, this may slow down the driver a bit however.
  */
 #if !defined(SDC_NICE_WAITING) || defined(__DOXYGEN__)
-#define SDC_NICE_WAITING            TRUE
+#define SDC_NICE_WAITING            FALSE
 #endif
 
 /*===========================================================================*/

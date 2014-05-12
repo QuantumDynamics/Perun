@@ -1,8 +1,11 @@
 #include "ch.h"
 #include "hal.h"
 #include "stm32f10x.h"
+#include "i2c.h"
 
 #include "drivers/engine.h"
+#include "drivers/MPU6050.h"
+
 #include "fc_nrf.h"
 #include "fc_spi.h"
 #include "protocol.h"
@@ -54,6 +57,22 @@ void callback(unsigned char buf[TX_PLOAD_WIDTH])
 
 unsigned char text[] = "ZBCD";
 
+static const I2CConfig i2cCfg =
+{ OPMODE_I2C, 360000, FAST_DUTY_CYCLE_2 };
+
+void testuj()
+{
+
+	if(cond)
+	{
+		palSetPad(GPIOC, GPIOC_LED3);
+	}
+	else
+	{
+		palSetPad(GPIOC, GPIOC_LED4);
+	}
+}
+
 int main(void)
 {
 	halInit();
@@ -67,16 +86,15 @@ int main(void)
 	engineInit();
 
 	AFIO ->MAPR |= AFIO_MAPR_TIM3_REMAP_PARTIALREMAP;
+	//AFIO ->MAPR |= AFIO_MAPR_I2C1_REMAP;
+
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(1), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(0), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(5), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
 
-	chThdSleepSeconds(2);
-
-	engineCalibrate();
-
-	extStart(&EXTD1, &extcfg);
-	//extChannelEnable(&EXTD1, 5);
+//TODO: TUTUAJ KURWA!!!!!!!!!!!!!
+//	chThdSleepSeconds(2);
+//	engineCalibrate();
 
 	SPIInit();
 
@@ -85,9 +103,17 @@ int main(void)
 	pwmEnableChannel(&ENGINE_PWM, 2, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 	pwmEnableChannel(&ENGINE_PWM, 1, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 
+	palSetPadMode(GPIOB, 10, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SCL */
+	palSetPadMode(GPIOB, 11, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SDA */
+
+	i2cStart(&I2CD2, &i2cCfg);
+
+	chThdSleepMilliseconds(500);
+
+	testuj();
 	while (1)
 	{
-		palTogglePad(GPIOC, GPIOC_LED3);
+		//palTogglePad(GPIOC, GPIOC_LED3);
 
 		chThdSleepSeconds(1);
 

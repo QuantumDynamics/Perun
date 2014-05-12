@@ -82,7 +82,9 @@ CSRC = $(PORTSRC) \
        drivers/engine.c \
        ../nrf_driver/fc_spi.c \
        ../nrf_driver/fc_nrf.c \
-       protocol.c 
+       protocol.c \
+       drivers/MPU6050.c \
+       drivers/i2cdev_chibi.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
