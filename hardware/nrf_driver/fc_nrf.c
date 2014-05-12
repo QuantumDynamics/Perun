@@ -88,7 +88,7 @@ msg_t fc_nrf_update(void* arg)
 			nrfCallback(rx_buf);
 		}
 
-		chBSemReset(&NRFSemIRQ, TRUE);
+		//chBSemReset(&NRFSemIRQ, TRUE);
 
 		NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);     // clear RX_DR or TX_DS or MAX_RT interrupt flag
 		chThdSleepMilliseconds(10);

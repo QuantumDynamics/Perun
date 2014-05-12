@@ -10,7 +10,7 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT = 
+  USE_COPT =
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -84,7 +84,9 @@ CSRC = $(PORTSRC) \
        ../nrf_driver/fc_nrf.c \
        protocol.c \
        drivers/MPU6050.c \
-       drivers/i2cdev_chibi.c
+       stm32f10x_rcc.c \
+       stm32f10x_i2c.c \
+       stm32f10x_gpio.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

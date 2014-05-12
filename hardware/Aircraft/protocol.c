@@ -26,12 +26,14 @@ void HandleCommand(unsigned char* buffer)
 void RequestStatusCommandHandler(unsigned char * buffer)
 {
 	(void)buffer;
-	if(MPUtestConnection()) {
-		fc_put_ack_payload("OK");
-	} else
-	{
-		fc_put_ack_payload("CHUJOWO");
-	}
+//	if(MPUtestConnection()) {
+//		fc_put_ack_payload("OK");
+//	} else
+//	{
+//		fc_put_ack_payload("CHUJOWO");
+//	}
+
+	fc_put_ack_payload(buffer);
 
 	palTogglePad(GPIOC, GPIOC_LED4);
 }

@@ -39,14 +39,14 @@ static const EXTConfig extcfg =
 
 static void watchdog_expired(void * _)
 {
-	(void)_;
+	(void) _;
 
 	SetFlightParametersCommandHandler(0, 145, 145);
 }
 
 void callback(unsigned char buf[TX_PLOAD_WIDTH])
 {
-	if(chVTIsArmedI(&watchdog))
+	if (chVTIsArmedI(&watchdog))
 	{
 		chVTReset(&watchdog);
 	}
@@ -58,12 +58,56 @@ void callback(unsigned char buf[TX_PLOAD_WIDTH])
 unsigned char text[] = "ZBCD";
 
 static const I2CConfig i2cCfg =
-{ OPMODE_I2C, 360000, FAST_DUTY_CYCLE_2 };
+		{ OPMODE_I2C, 360000, FAST_DUTY_CYCLE_2 };
 
 void testuj()
 {
 
-	if(cond)
+	uint8_t cond = 0;
+
+	MPU6050_I2C_Init();
+
+	MPU6050_Initialize();
+
+	cond = MPU6050_TestConnection();
+
+	if (cond)
+	{
+		palSetPad(GPIOC, GPIOC_LED3);
+	}
+	else
+	{
+		palSetPad(GPIOC, GPIOC_LED4);
+	}
+
+	chThdSleepSeconds(5);
+
+	palClearPad(GPIOC, GPIOC_LED3);
+
+	chThdSleepSeconds(2);
+
+	cond = MPU6050_GetSleepModeStatus();
+
+	if (cond)
+	{
+		palSetPad(GPIOC, GPIOC_LED3);
+	}
+	else
+	{
+		palSetPad(GPIOC, GPIOC_LED4);
+	}
+
+	chThdSleepSeconds(5);
+
+	palClearPad(GPIOC, GPIOC_LED3);
+
+	chThdSleepSeconds(2);
+
+	MPU6050_SetSleepModeStatus(ENABLE);
+
+	cond = MPU6050_GetSleepModeStatus();
+
+	if (cond)
 	{
 		palSetPad(GPIOC, GPIOC_LED3);
 	}
@@ -85,7 +129,7 @@ int main(void)
 
 	engineInit();
 
-	AFIO ->MAPR |= AFIO_MAPR_TIM3_REMAP_PARTIALREMAP;
+	AFIO->MAPR |= AFIO_MAPR_TIM3_REMAP_PARTIALREMAP;
 	//AFIO ->MAPR |= AFIO_MAPR_I2C1_REMAP;
 
 	palSetGroupMode(GPIOB, PAL_PORT_BIT(1), 0, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
@@ -103,21 +147,25 @@ int main(void)
 	pwmEnableChannel(&ENGINE_PWM, 2, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 	pwmEnableChannel(&ENGINE_PWM, 1, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 
-	palSetPadMode(GPIOB, 10, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SCL */
-	palSetPadMode(GPIOB, 11, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SDA */
+	palSetPadMode(GPIOB, 10, PAL_MODE_STM32_ALTERNATE_OPENDRAIN); /* SCL */
+	palSetPadMode(GPIOB, 11, PAL_MODE_STM32_ALTERNATE_OPENDRAIN); /* SDA */
 
-	i2cStart(&I2CD2, &i2cCfg);
+	//i2cStart(&I2CD2, &i2cCfg);
 
 	chThdSleepMilliseconds(500);
 
-	testuj();
+	//testuj();
 	while (1)
 	{
+		int16_t r[6] =
+		{ 0 };
 		//palTogglePad(GPIOC, GPIOC_LED3);
 
 		chThdSleepSeconds(1);
 
 		chThdYield();
+
+
 	}
 }
 
