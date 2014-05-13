@@ -78,6 +78,8 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(CHIBIOS)/os/various/syscalls.c \
+       $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/os/various/memstreams.c \
        main.c \
        drivers/engine.c \
        ../nrf_driver/fc_spi.c \
@@ -86,7 +88,9 @@ CSRC = $(PORTSRC) \
        drivers/MPU6050.c \
        stm32f10x_rcc.c \
        stm32f10x_i2c.c \
-       stm32f10x_gpio.c
+       stm32f10x_gpio.c \
+       drivers/mpu.c \
+       drivers/kalman.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

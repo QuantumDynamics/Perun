@@ -202,13 +202,15 @@ void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH])
 	NRFSetCE(0);
 }
 
-void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH])
+uint8_t fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH])
 {
 	fc_transmit(requestBuffer);
 
 	unsigned char status = 0;
 
-	while (1)
+	systime_t startedAt = chTimeNow();
+
+	while (chTimeElapsedSince(startedAt) < MS2ST(500))
 	{
 		nrf_read_reg(STATUS, &status, 1);
 
@@ -224,11 +226,13 @@ void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char
 
 			NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);
 
-			return;
+			return RETURN_OK;
 		}
 
 		chThdYield();
 	}
+
+	return ERROR_TIMEOUT;
 }
 
 void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH])

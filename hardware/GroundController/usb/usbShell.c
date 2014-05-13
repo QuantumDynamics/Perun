@@ -115,9 +115,9 @@ static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 	(void) argv;
 
 	unsigned char req[TX_PLOAD_WIDTH] =
-	{ 0 };
+			{ 0 };
 	unsigned char resp[TX_PLOAD_WIDTH] =
-	{ 0 };
+			{ 0 };
 	unsigned char s = 0;
 
 	nrf_read_reg(STATUS, &s, 1);
@@ -138,16 +138,17 @@ static void cmd_req(BaseSequentialStream * chp, int argc, char * argv[])
 
 static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[])
 {
-	uint8_t buffer[TX_PLOAD_WIDTH] =  {0};
+	uint8_t buffer[TX_PLOAD_WIDTH] =
+			{ 0 };
 	uint8_t tmp = FetchFromBuffer;
 	uint8_t i, len;
 
 	buffer[0] = RequestStatus;
 	len = strlen(argv[0]);
 
-	for(i = 0; i < len; i++)
+	for (i = 0; i < len; i++)
 	{
-		buffer[1+i] = (argv[0])[i];
+		buffer[1 + i] = (argv[0])[i];
 	}
 
 	chprintf(chp, "Requested...\r\n");
@@ -162,6 +163,37 @@ static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[])
 	chprintf(chp, "Response: %s\r\n", buffer);
 }
 
+static void cmd_acceleration(BaseSequentialStream * chp, int argc, char * argv[])
+{
+	uint8_t buffer[TX_PLOAD_WIDTH] =
+			{ 0 };
+	uint8_t fetch = FetchFromBuffer;
+	uint8_t req = RequestStatus;
+	uint8_t i;
+
+	buffer[0] = RequestStatus;
+
+	chprintf(chp, "Requested...\r\n");
+
+	for (i = 0; i < 60; i++)
+	{
+		fc_transmit(&req);
+
+		chThdSleepMicroseconds(2000);
+
+		if(fc_request_reply(&fetch, buffer) == RETURN_OK)
+		{
+			chprintf(chp, "R(%d): %s\r\n", i, buffer);
+		}
+		else
+		{
+			chprintf(chp, "R(%d): Timeout\r\n", i);
+		}
+
+		chThdSleepMilliseconds(500);
+	}
+}
+
 const ShellCommand commands[] =
 		{
 				{ "leds", cmd_leds },
@@ -170,6 +202,7 @@ const ShellCommand commands[] =
 				{ "stop", cmd_stop },
 				{ "req", cmd_req },
 				{ "echo", cmd_echo },
+				{ "acc", cmd_acceleration },
 				{ NULL, NULL }
 		};
 

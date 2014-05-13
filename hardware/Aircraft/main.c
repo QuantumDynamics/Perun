@@ -9,6 +9,7 @@
 #include "fc_nrf.h"
 #include "fc_spi.h"
 #include "protocol.h"
+#include "drivers/mpu.h"
 
 static VirtualTimer watchdog;
 
@@ -80,41 +81,10 @@ void testuj()
 		palSetPad(GPIOC, GPIOC_LED4);
 	}
 
-	chThdSleepSeconds(5);
-
-	palClearPad(GPIOC, GPIOC_LED3);
-
 	chThdSleepSeconds(2);
 
-	cond = MPU6050_GetSleepModeStatus();
-
-	if (cond)
-	{
-		palSetPad(GPIOC, GPIOC_LED3);
-	}
-	else
-	{
-		palSetPad(GPIOC, GPIOC_LED4);
-	}
-
-	chThdSleepSeconds(5);
-
 	palClearPad(GPIOC, GPIOC_LED3);
-
-	chThdSleepSeconds(2);
-
-	MPU6050_SetSleepModeStatus(ENABLE);
-
-	cond = MPU6050_GetSleepModeStatus();
-
-	if (cond)
-	{
-		palSetPad(GPIOC, GPIOC_LED3);
-	}
-	else
-	{
-		palSetPad(GPIOC, GPIOC_LED4);
-	}
+	palClearPad(GPIOC, GPIOC_LED4);
 }
 
 int main(void)
@@ -154,7 +124,10 @@ int main(void)
 
 	chThdSleepMilliseconds(500);
 
-	//testuj();
+	testuj();
+
+	mpuCalibrate();
+
 	while (1)
 	{
 		int16_t r[6] =

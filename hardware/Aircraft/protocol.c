@@ -2,6 +2,8 @@
 #include "drivers/engine.h"
 #include "fc_nrf.h"
 #include "drivers/MPU6050.h"
+#include "chprintf.h"
+#include "drivers/mpu.h"
 
 Command CommandSet[] =
 {
@@ -26,16 +28,17 @@ void HandleCommand(unsigned char* buffer)
 void RequestStatusCommandHandler(unsigned char * buffer)
 {
 	(void)buffer;
-//	if(MPUtestConnection()) {
-//		fc_put_ack_payload("OK");
-//	} else
-//	{
-//		fc_put_ack_payload("CHUJOWO");
-//	}
+	uint8_t output[30] = {0};
 
-	fc_put_ack_payload(buffer);
+	palSetPad(GPIOC, GPIOC_LED4);
 
-	palTogglePad(GPIOC, GPIOC_LED4);
+	vector3f acc = readAcceleration();
+
+	chsnprintf(output, 30, "R:%4.2f %4.2f %4.2f", acc.x, acc.y, acc.z);
+
+	fc_put_ack_payload(output);
+
+	palClearPad(GPIOC, GPIOC_LED4);
 }
 
 void RequestStatusCommandHandlerProxy(unsigned char * buffer)

@@ -88,13 +88,16 @@ void nrfIrqHandler(EXTDriver *extp, expchannel_t channel);
 
 //*********************************************
 
+#define RETURN_OK 0
+#define ERROR_TIMEOUT 1
+
 typedef void (*NRFCallback) (unsigned char[TX_PLOAD_WIDTH]);
 
 void fc_nrf_init(NRFCallback callback, unsigned char mode);
 int fc_nrf_test_spi_connection(void);
 
 void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH]);
-void fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH]);
+uint8_t fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH]);
 void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH]);
 
 void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize);

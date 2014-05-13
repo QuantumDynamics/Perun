@@ -50,9 +50,9 @@ THE SOFTWARE.
  */
 void MPU6050_Initialize()
 {
-    MPU6050_SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
-    MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    MPU6050_SetClockSource(MPU6050_CLOCK_DIV_308);
+    MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+    MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_16);
     MPU6050_SetSleepModeStatus(DISABLE);
 }
 
