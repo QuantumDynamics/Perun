@@ -2,6 +2,7 @@
 #define MPU_H
 
 #include <stdint.h>
+#include <protocol.h>
 
 typedef struct
 {
@@ -14,12 +15,6 @@ typedef struct
 	int16_t G_Z;
 } mpuValues;
 
-typedef struct
-{
-		float x;
-		float y;
-		float z;
-} vector3f;
 
 extern volatile mpuValues calib;
 

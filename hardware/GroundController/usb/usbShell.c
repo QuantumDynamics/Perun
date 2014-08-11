@@ -144,23 +144,23 @@ static void cmd_echo(BaseSequentialStream * chp, int argc, char * argv[])
 	uint8_t i, len;
 
 	buffer[0] = RequestStatus;
-	len = strlen(argv[0]);
-
-	for (i = 0; i < len; i++)
-	{
-		buffer[1 + i] = (argv[0])[i];
-	}
-
-	chprintf(chp, "Requested...\r\n");
 
 	fc_transmit(buffer);
 
 	chThdSleepMicroseconds(2000);
 
-	chprintf(chp, "Fettching response\r\n");
-	fc_request_reply(&tmp, buffer);
+	if (fc_request_reply(&tmp, buffer) == RETURN_OK)
+	{
+		float x = ((StatusPayload*)buffer)->acceleration.x;
+		float y = ((StatusPayload*)buffer)->acceleration.y;
+		float z = ((StatusPayload*)buffer)->acceleration.z;
 
-	chprintf(chp, "Response: %s\r\n", buffer);
+		chprintf(chp, "ACC:%f;%f;%f\r\n", x, y, z);
+	}
+	else
+	{
+		chprintf(chp, "ACC:TIMEOUT\r\n");
+	}
 }
 
 static void cmd_acceleration(BaseSequentialStream * chp, int argc, char * argv[])
@@ -181,7 +181,7 @@ static void cmd_acceleration(BaseSequentialStream * chp, int argc, char * argv[]
 
 		chThdSleepMicroseconds(2000);
 
-		if(fc_request_reply(&fetch, buffer) == RETURN_OK)
+		if (fc_request_reply(&fetch, buffer) == RETURN_OK)
 		{
 			chprintf(chp, "R(%d): %s\r\n", i, buffer);
 		}

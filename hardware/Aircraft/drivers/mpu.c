@@ -122,7 +122,6 @@ void mpuCalibrate(void)
 }
 
 
-
 volatile static systime_t lastTime = 0;
 
 vector3f readAcceleration(void)

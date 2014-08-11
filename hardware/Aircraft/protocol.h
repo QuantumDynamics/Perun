@@ -22,6 +22,19 @@ typedef struct Command
 	CommandHandler commandHandler;
 } Command;
 
+typedef struct
+{
+		float x;
+		float y;
+		float z;
+} vector3f;
+
+
+typedef struct __attribute__((__packed__))
+{
+	vector3f acceleration;
+} StatusPayload;
+
 void HandleCommand(unsigned char* buffer);
 
 // Command Proxy

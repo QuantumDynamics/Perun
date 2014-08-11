@@ -110,10 +110,6 @@ int main(void)
 //	chThdSleepSeconds(2);
 //	engineCalibrate();
 
-	SPIInit();
-
-	fc_nrf_init(callback, NRF_MODE_PRX);
-
 	pwmEnableChannel(&ENGINE_PWM, 2, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 	pwmEnableChannel(&ENGINE_PWM, 1, PWM_FRACTION_TO_WIDTH(&ENGINE_PWM, 20, 0) + 100);
 
@@ -128,16 +124,19 @@ int main(void)
 
 	mpuCalibrate();
 
+	SPIInit();
+
+	fc_nrf_init(callback, NRF_MODE_PRX);
+
 	while (1)
 	{
 		int16_t r[6] =
-		{ 0 };
+				{ 0 };
 		//palTogglePad(GPIOC, GPIOC_LED3);
 
 		chThdSleepSeconds(1);
 
 		chThdYield();
-
 
 	}
 }

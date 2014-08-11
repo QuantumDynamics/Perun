@@ -5,10 +5,21 @@
 #include "chprintf.h"
 #include "drivers/mpu.h"
 
+#define PackFloat(f, arr, offset) arr[offset + 0] = ((uint8_t*)&f)[0];\
+								  arr[offset + 1] = ((uint8_t*)&f)[1];\
+								  arr[offset + 2] = ((uint8_t*)&f)[2];\
+								  arr[offset + 3] = ((uint8_t*)&f)[3];
+
+void FetchFromBufferProxy(unsigned char* buffer)
+{
+	palClearPad(GPIOC, GPIOC_LED4);
+}
+
 Command CommandSet[] =
 {
 	 { SetFlightParametersCommand, SetFlightParametersCommandHandlerProxy },
-	 { RequestStatus, RequestStatusCommandHandlerProxy }
+	 { RequestStatus, RequestStatusCommandHandlerProxy },
+	 { FetchFromBuffer, FetchFromBufferProxy }
 };
 
 void HandleCommand(unsigned char* buffer)
@@ -32,13 +43,11 @@ void RequestStatusCommandHandler(unsigned char * buffer)
 
 	palSetPad(GPIOC, GPIOC_LED4);
 
-	vector3f acc = readAcceleration();
-
-	chsnprintf(output, 30, "R:%4.2f %4.2f %4.2f", acc.x, acc.y, acc.z);
+	((StatusPayload*)output)->acceleration = readAcceleration();
 
 	fc_put_ack_payload(output);
 
-	palClearPad(GPIOC, GPIOC_LED4);
+	//palClearPad(GPIOC, GPIOC_LED4);
 }
 
 void RequestStatusCommandHandlerProxy(unsigned char * buffer)
