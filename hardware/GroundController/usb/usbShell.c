@@ -194,6 +194,63 @@ static void cmd_acceleration(BaseSequentialStream * chp, int argc, char * argv[]
 	}
 }
 
+static void cmd_conn(BaseSequentialStream * chp, int argc, char * argv[])
+{
+		(void) argc;
+		(void) argv;
+
+		unsigned char req[TX_PLOAD_WIDTH] =
+				{ 'A', 'B', 'C' };
+		unsigned char s = 0;
+
+		nrf_read_reg(STATUS, &s, 1);
+
+		if ((s & TX_DS) || (s & MAX_RT))
+		{
+			NRFWriteSingleReg(NRF_WRITE_REG + STATUS, s);  // clear RX_DR or TX_DS or MAX_RT interrupt flag
+			NRFWriteSingleReg(FLUSH_TX, 0);
+		}
+
+		nrf_read_reg(STATUS, &s, 1);
+
+		chprintf(chp, "STATUS: %X\n\r", s);
+
+		fc_transmit(&req);
+
+		chThdSleepMilliseconds(2000);
+
+		nrf_read_reg(STATUS, &s, 1);
+
+		chprintf(chp, "STATUS: %X\n\r", s);
+}
+
+static void cmd_remote_led(BaseSequentialStream * chp, int argc, char * argv[])
+{
+	unsigned char s = 0;
+
+	unsigned char remoteLedStatus = argv[0][0] == '1' ? 1 : 0;
+
+	unsigned char req[TX_PLOAD_WIDTH] = { 0xA, remoteLedStatus };
+	unsigned char resp[TX_PLOAD_WIDTH] = {0};
+
+	nrf_read_reg(STATUS, &s, 1);
+
+	chprintf(chp, "STATUS: %X\n\r", s);
+
+	if(fc_request_reply(req, resp) == RETURN_OK)
+	{
+		chprintf(chp, "OK: %s\n\r", resp);
+	}
+	else
+	{
+		chprintf(chp, "TIMEOUT\n\r");
+	}
+
+	nrf_read_reg(STATUS, &s, 1);
+
+	chprintf(chp, "STATUS: %X\n\r", s);
+}
+
 const ShellCommand commands[] =
 		{
 				{ "leds", cmd_leds },
@@ -203,6 +260,7 @@ const ShellCommand commands[] =
 				{ "req", cmd_req },
 				{ "echo", cmd_echo },
 				{ "acc", cmd_acceleration },
+				{ "c", cmd_conn },
+				{ "rl", cmd_remote_led },
 				{ NULL, NULL }
 		};
-

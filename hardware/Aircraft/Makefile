@@ -3,6 +3,9 @@
 # NOTE: Can be overridden externally.
 #
 
+#SHELL:=cmd.exe
+#RM:=del
+
 # Compiler options here.
 ifeq ($(USE_OPT),)
   USE_OPT = -O2 -ggdb -fomit-frame-pointer

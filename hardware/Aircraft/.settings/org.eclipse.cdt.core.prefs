@@ -1,3 +1,6 @@
 eclipse.preferences.version=1
+environment/project/org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693/PATH/delimiter=;
+environment/project/org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693/PATH/operation=replace
+environment/project/org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693/PATH/value=C\:\\CodeSourcery\\toolchain\\bin;C\:\\CodeSourcery\\coreutils
 environment/project/org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693/append=true
-environment/project/org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693/appendContributed=true
+environment/project/org.eclipse.cdt.cross.arm.gnu.sourcery.windows.toolchain.base.955418693/appendContributed=false

@@ -102,4 +102,6 @@ void fc_put_ack_payload(unsigned char buffer[TX_PLOAD_WIDTH]);
 
 void nrf_read_reg(uint8_t reg, uint8_t * out, uint8_t recvSize);
 
+void NRFWriteSingleReg(uint8_t reg, uint8_t val);
+
 #endif

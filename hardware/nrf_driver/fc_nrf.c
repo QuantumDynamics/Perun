@@ -54,7 +54,7 @@ static void NRFWriteReg(uint8_t reg, uint8_t val[], uint8_t size)
 /*
  * Write byte to register
  */
-static void NRFWriteSingleReg(uint8_t reg, uint8_t val)
+void NRFWriteSingleReg(uint8_t reg, uint8_t val)
 {
 	NRFWriteReg(reg, &val, 1);
 }
@@ -146,7 +146,7 @@ void fc_nrf_init(NRFCallback callback, unsigned char mode)
 	NRFWriteSingleReg(NRF_WRITE_REG + SETUP_RETR, NRF_SETUP_RETR_750 | 10); // 500us + 86us, 10 retrans...
 	NRFWriteSingleReg(NRF_WRITE_REG + RF_CH, 40);        // Select RF channel 40
 	NRFWriteSingleReg(NRF_WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH); // Select same RX payload width as TX Payload width
-	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, NRF_RF_SETUP_LNA_HCURR | NRF_RF_SETUP_PWR_0_dB);   // TX_PWR:0dBm, Datarate:2Mbps, LNA:HCURR
+	NRFWriteSingleReg(NRF_WRITE_REG + RF_SETUP, NRF_RF_SETUP_LNA_HCURR | NRF_RF_SETUP_PWR_0_dB);   // TX_PWR:0dBm, Datarate:1Mbps, LNA:HCURR
 	NRFWriteSingleReg(NRF_WRITE_REG + CONFIG, mode | NRF_CFG_PWR_UP | NRF_CFG_CRCO | NRF_CFG_EN_CRC);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:TX. MAX_RT & TX_DS enabled..
 
 	NRFWriteSingleReg(DYNPD, 0x01);

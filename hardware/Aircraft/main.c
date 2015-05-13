@@ -2,6 +2,9 @@
 #include "hal.h"
 #include "stm32f10x.h"
 #include "i2c.h"
+#include "ext.h"
+#include <stdlib.h>
+#include "pwm.h"
 
 #include "drivers/engine.h"
 #include "drivers/MPU6050.h"
@@ -9,7 +12,9 @@
 #include "fc_nrf.h"
 #include "fc_spi.h"
 #include "protocol.h"
+#include "drivers/engine.h"
 #include "drivers/mpu.h"
+
 
 static VirtualTimer watchdog;
 
@@ -116,6 +121,8 @@ int main(void)
 	palSetPadMode(GPIOB, 10, PAL_MODE_STM32_ALTERNATE_OPENDRAIN); /* SCL */
 	palSetPadMode(GPIOB, 11, PAL_MODE_STM32_ALTERNATE_OPENDRAIN); /* SDA */
 
+	palSetPadMode(GPIOC, 9, PAL_MODE_OUTPUT_OPENDRAIN);
+
 	//i2cStart(&I2CD2, &i2cCfg);
 
 	chThdSleepMilliseconds(500);
@@ -128,11 +135,18 @@ int main(void)
 
 	fc_nrf_init(callback, NRF_MODE_PRX);
 
+	palSetPad(GPIOC, 8);
+	if(fc_nrf_test_spi_connection())
+	{
+		palClearPad(GPIOC, 8);
+	}	
+
+
 	while (1)
 	{
 		int16_t r[6] =
 				{ 0 };
-		//palTogglePad(GPIOC, GPIOC_LED3);
+		palTogglePad(GPIOC, GPIOC_LED3);
 
 		chThdSleepSeconds(1);
 
@@ -140,4 +154,3 @@ int main(void)
 
 	}
 }
-

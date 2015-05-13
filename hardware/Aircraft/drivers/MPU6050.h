@@ -393,21 +393,21 @@ THE SOFTWARE.
 
 
 void MPU6050_Initialize(void);
-uint8_t MPU6050_TestConnection();
+uint8_t MPU6050_TestConnection(void);
 
 // GYRO_CONFIG register
-uint8_t MPU6050_GetFullScaleGyroRange();
+uint8_t MPU6050_GetFullScaleGyroRange(void);
 void MPU6050_SetFullScaleGyroRange(uint8_t range);
 // ACCEL_CONFIG register
-uint8_t MPU6050_GetFullScaleAccelRange();
+uint8_t MPU6050_GetFullScaleAccelRange(void);
 void MPU6050_SetFullScaleAccelRange(uint8_t range);
 
 // PWR_MGMT_1 register
-uint8_t MPU6050_GetSleepModeStatus();
+uint8_t MPU6050_GetSleepModeStatus(void);
 void MPU6050_SetSleepModeStatus(FunctionalState NewState);
 void MPU6050_SetClockSource(uint8_t source);
 // WHO_AM_I register
-uint8_t MPU6050_GetDeviceID();
+uint8_t MPU6050_GetDeviceID(void);
 
 void MPU6050_GetRawAccelGyro(s16* AccelGyro);
 
@@ -416,7 +416,7 @@ void MPU6050_WriteBit(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitNum, uint8_
 void MPU6050_ReadBits(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data);
 void MPU6050_ReadBit(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data);
 
-void MPU6050_I2C_Init();
+void MPU6050_I2C_Init(void);
 void MPU6050_I2C_ByteWrite(u8 slaveAddr, u8* pBuffer, u8 writeAddr);
 void MPU6050_I2C_BufferRead(u8 slaveAddr,u8* pBuffer, u8 readAddr, u16 NumByteToRead);
 

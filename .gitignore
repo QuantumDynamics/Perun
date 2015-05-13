@@ -1,3 +1,9 @@
 build
 .dep
 shared.settings.mk
+*.atsuo
+*.user
+erlide*
+hardware/.metadata
+hardware/AvrAircraft/Debug
+hardware/AvrAircraft/Release

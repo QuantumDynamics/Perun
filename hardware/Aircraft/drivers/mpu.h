@@ -20,7 +20,7 @@ extern volatile mpuValues calib;
 
 mpuValues add(mpuValues a, mpuValues b);
 mpuValues sub(mpuValues a, mpuValues b);
-mpuValues div(mpuValues a, int factor);
+mpuValues divMpu(mpuValues a, int factor);
 
 mpuValues readMotion(void);
 void mpuCalibrate(void);

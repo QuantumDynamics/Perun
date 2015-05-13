@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Aircraft2", "Aircraft\Aircraft2.cproj", "{6D64C720-ADD2-4B08-B2C8-534A45CB9DDB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Release|ARM = Release|ARM
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6D64C720-ADD2-4B08-B2C8-534A45CB9DDB}.Debug|ARM.ActiveCfg = Debug|ARM
+		{6D64C720-ADD2-4B08-B2C8-534A45CB9DDB}.Debug|ARM.Build.0 = Debug|ARM
+		{6D64C720-ADD2-4B08-B2C8-534A45CB9DDB}.Release|ARM.ActiveCfg = Release|ARM
+		{6D64C720-ADD2-4B08-B2C8-534A45CB9DDB}.Release|ARM.Build.0 = Release|ARM
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

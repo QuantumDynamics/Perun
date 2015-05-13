@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "stm32f10x_i2c.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
+#include<stdint.h>
 
 #define FALSE 0
 #define TRUE 1
@@ -48,7 +49,7 @@ THE SOFTWARE.
  * the clock source to use the X Gyro for reference, which is slightly better than
  * the default internal clock source.
  */
-void MPU6050_Initialize()
+void MPU6050_Initialize(void)
 {
     MPU6050_SetClockSource(MPU6050_CLOCK_DIV_308);
     MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_2000);
@@ -60,7 +61,7 @@ void MPU6050_Initialize()
  * Make sure the device is connected and responds as expected.
  * @return True if connection is valid, FALSE otherwise
  */
-uint8_t MPU6050_TestConnection()
+uint8_t MPU6050_TestConnection(void)
 {
     if(MPU6050_GetDeviceID() == 0x34) //0b110100; 8-bit representation in hex = 0x34
       return TRUE;
@@ -76,7 +77,7 @@ uint8_t MPU6050_TestConnection()
  * @see MPU6050_WHO_AM_I_BIT
  * @see MPU6050_WHO_AM_I_LENGTH
  */
-uint8_t MPU6050_GetDeviceID()
+uint8_t MPU6050_GetDeviceID(void)
 {
     uint8_t tmp;
     MPU6050_ReadBits(MPU6050_DEFAULT_ADDRESS, MPU6050_RA_WHO_AM_I, MPU6050_WHO_AM_I_BIT, MPU6050_WHO_AM_I_LENGTH, &tmp);
@@ -149,7 +150,7 @@ void MPU6050_SetFullScaleGyroRange(uint8_t range)
  * @see MPU6050_GCONFIG_FS_SEL_BIT
  * @see MPU6050_GCONFIG_FS_SEL_LENGTH
  */
-uint8_t MPU6050_GetFullScaleGyroRange()
+uint8_t MPU6050_GetFullScaleGyroRange(void)
 {
     uint8_t tmp;
     MPU6050_ReadBits(MPU6050_DEFAULT_ADDRESS, MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, &tmp);
@@ -172,7 +173,7 @@ uint8_t MPU6050_GetFullScaleGyroRange()
  * @see MPU6050_ACONFIG_AFS_SEL_BIT
  * @see MPU6050_ACONFIG_AFS_SEL_LENGTH
  */
-uint8_t MPU6050_GetFullScaleAccelRange()
+uint8_t MPU6050_GetFullScaleAccelRange(void)
 {
     uint8_t tmp;
     MPU6050_ReadBits(MPU6050_DEFAULT_ADDRESS, MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, &tmp);
@@ -198,7 +199,7 @@ void MPU6050_SetFullScaleAccelRange(uint8_t range)
  * @see MPU6050_RA_PWR_MGMT_1
  * @see MPU6050_PWR1_SLEEP_BIT
  */
-uint8_t MPU6050_GetSleepModeStatus()
+uint8_t MPU6050_GetSleepModeStatus(void)
 {
     uint8_t tmp;
     MPU6050_ReadBit(MPU6050_DEFAULT_ADDRESS, MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, &tmp);
@@ -318,7 +319,7 @@ void MPU6050_ReadBit(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitNum, uint8_t
 * @param  None
 * @return None
 */
-void MPU6050_I2C_Init()
+void MPU6050_I2C_Init(void)
 {
   I2C_InitTypeDef  I2C_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
