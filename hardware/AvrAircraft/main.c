@@ -16,6 +16,14 @@ int main(void)
 	red(ON);
 	yellow(ON);
 	
+	DDRD = _BV(PORTD6) | _BV(PORTD5);
+	
+	TCCR0A = _BV(COM0A1) | _BV(COM0B1) |_BV(WGM01) | _BV(WGM00);
+	TCCR0B = _BV(CS01) | _BV(CS00);
+	
+	OCR0A = 25;
+	OCR0B = 30;
+	
 	_delay_ms(2000);
 	
 	red(OFF);
