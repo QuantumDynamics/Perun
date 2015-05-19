@@ -202,6 +202,9 @@ static void cmd_conn(BaseSequentialStream * chp, int argc, char * argv[])
 		unsigned char req[TX_PLOAD_WIDTH] =
 				{ 'A', 'B', 'C' };
 		unsigned char s = 0;
+		unsigned char sendBuffer[TX_PLOAD_WIDTH] = {0};
+		unsigned char responseBuffer[TX_PLOAD_WIDTH] = {0};
+		int i = 0;
 
 		nrf_read_reg(STATUS, &s, 1);
 
@@ -211,17 +214,24 @@ static void cmd_conn(BaseSequentialStream * chp, int argc, char * argv[])
 			NRFWriteSingleReg(FLUSH_TX, 0);
 		}
 
-		nrf_read_reg(STATUS, &s, 1);
 
-		chprintf(chp, "STATUS: %X\n\r", s);
 
-		fc_transmit(&req);
+		for(i = 0; i < 10; i++)
+		{
+			nrf_read_reg(STATUS, &s, 1);
 
-		chThdSleepMilliseconds(2000);
+			chprintf(chp, "STATUS: %X\n\r", s);
 
-		nrf_read_reg(STATUS, &s, 1);
+			CreateSetFlightParametersCommand(sendBuffer, 50, 50, 50);
 
-		chprintf(chp, "STATUS: %X\n\r", s);
+			fc_request_reply(sendBuffer, responseBuffer);
+
+			nrf_read_reg(STATUS, &s, 1);
+
+			chprintf(chp, "STATUS: %X\n\r", s);
+
+			chThdSleepMilliseconds(1000);
+		}
 }
 
 static void cmd_remote_led(BaseSequentialStream * chp, int argc, char * argv[])
