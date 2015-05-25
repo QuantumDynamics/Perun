@@ -188,56 +188,50 @@ void fc_transmit(unsigned char buffer[TX_PLOAD_WIDTH])
 {
 	unsigned char sstatus = 0;
 
-	//chprintf(&SDU1, "A\n\r");
-
 	memcpy(tx_buf, buffer, TX_PLOAD_WIDTH);
 
-	//nrf_read_reg(STATUS, &sstatus, 1);
-//	chprintf(&SDU1, "B");
-//	if ((sstatus & TX_DS) || (sstatus & MAX_RT))
-//	{
-//		NRFWriteSingleReg(NRF_WRITE_REG + STATUS, sstatus);  // clear RX_DR or TX_DS or MAX_RT interrupt flag
-//		NRFWriteSingleReg(FLUSH_TX, 0);
-//	}
+	NRFWriteSingleReg(FLUSH_TX, 0);
+	NRFWriteSingleReg(NRF_WRITE_REG + STATUS, RX_DR | TX_DS | MAX_RT);
 
 	NRFWriteReg(WR_TX_PLOAD, tx_buf, TX_PLOAD_WIDTH);       // write playload to TX_FIFO
 
 	NRFSetCE(1);
 	chThdSleepMicroseconds(100);
 	NRFSetCE(0);
-
-
 }
 
 uint8_t fc_request_reply(unsigned char requestBuffer[TX_PLOAD_WIDTH], unsigned char responseBuffer[TX_PLOAD_WIDTH])
 {
-	chprintf(&SDU1, "Transmiting...");
 	fc_transmit(requestBuffer);
-	chprintf(&SDU1, "done\n\r");
 
 	unsigned char status = 0;
 
 	systime_t startedAt = chTimeNow();
 
-	chprintf(&SDU1, "Waiting for response");
 	while (chTimeElapsedSince(startedAt) < MS2ST(500))
 	{
-		chprintf(&SDU1, ".");
 		nrf_read_reg(STATUS, &status, 1);
+
+		if(status & MAX_RT)
+		{
+			palSetPad(GPIOD, GPIOD_LED6);
+		}
+		else
+		{
+			palClearPad(GPIOD, GPIOD_LED6);
+		}
 
 		if (status & TX_DS)
 		{
 			if (status & RX_DR)
 			{
-				palTogglePad(GPIOD, 14);
+				palTogglePad(GPIOD, GPIOD_LED5);
 			}
 
 			nrf_read_reg(RD_RX_PLOAD, responseBuffer, TX_PLOAD_WIDTH);
 			NRFWriteSingleReg(FLUSH_RX, 0);
 
 			NRFWriteSingleReg(NRF_WRITE_REG + STATUS, status);
-
-			chprintf(&SDU1, "done\n\r");
 
 			return RETURN_OK;
 		}

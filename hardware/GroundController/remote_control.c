@@ -6,7 +6,7 @@
 
 extern SerialUSBDriver SDU1;
 
-static WORKING_AREA(remoteControlThreadArea, 128);
+static WORKING_AREA(remoteControlThreadArea, 512);
 
 static Thread * remoteControlThread = NULL;
 
@@ -27,20 +27,21 @@ static msg_t remoteControl(void * _)
 	unsigned char sendBuffer[TX_PLOAD_WIDTH] = {0};
 	unsigned char responseBuffer[TX_PLOAD_WIDTH] = {0};
 
+	//chprintf(&SDU1, "Starting remote control\n\r");
+
 	while (enabled == 1)
 	{
-		chprintf(&SDU1, "Sending flight params...");
+		palTogglePad(GPIOD, GPIOD_LED3);
+		//chprintf(&SDU1, ".");
 
 		CreateSetFlightParametersCommand(sendBuffer, current.throttle, current.rudder, current.elevator);
 
 		fc_request_reply(sendBuffer, responseBuffer);
 
-		chprintf(&SDU1, "done\n\r");
-
-		chThdSleepMilliseconds(1000);
+		chThdSleepMilliseconds(50);
 	}
 
-	chprintf(&SDU1, "Loop terminated\n\r");
+	//chprintf(&SDU1, "Stopped remote control\n\r");
 
 	return 0;
 }

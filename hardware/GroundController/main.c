@@ -35,6 +35,11 @@
 #include "usb/usbShell.h"
 #include "chprintf.h"
 
+//LED_GREEN  (4)    on PD12
+//LED_ORANGE (3)    on PD13
+//LED_RED    (5)    on PD14
+//LED_BLUE   (6)    on PD15
+
 int main(void)
 {
 	halInit();
@@ -44,6 +49,7 @@ int main(void)
 	palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, GPIOD_LED6, PAL_MODE_OUTPUT_PUSHPULL);
 
 	chThdSleepSeconds(1);
 
