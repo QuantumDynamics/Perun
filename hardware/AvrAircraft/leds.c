@@ -20,6 +20,8 @@ void initLeds()
 {
 	LED_DDR |= _BV(LED_RED) | _BV(LED_YELLOW);
 	
+	red(OFF);
+	yellow(OFF);
 }
 
 void red(LedStatus status)

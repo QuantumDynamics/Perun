@@ -17,7 +17,19 @@ int main(void)
 	
 	initLeds();
 		
-	initializeFlightControls();				
+	DDRB &= ~_BV(PINB7);
+	PORTB |= _BV(PINB7);
+		
+	initializeFlightControls();	
+		
+	if(bit_is_clear(PINB, PINB7))
+	{			
+		calibrate();		
+	}
+	else
+	{
+		setPwm(&throttlePwm, 0);
+	}	
 	
 	_delay_ms(2000);
 	
@@ -69,10 +81,15 @@ int main(void)
 				
 				setFlightParams(throttle, elevator, rudder);				
 			}
+			else
+			{
+				yellow(OFF);				
+				
+			}
 			
 			nrf24l01_writeregister(NRF24L01_REG_STATUS, _BV(6));
 			nrf24l01_flushRXfifo();
 			nrf24l01_write_ack_payload(0);
-        }       			
+        }    						   			
     }
 }

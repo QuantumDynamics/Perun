@@ -20,4 +20,6 @@ void initializeFlightControls();
 
 void setFlightParams(uint8_t throttle, uint8_t elevator, uint8_t rudder);
 
+void calibrate();
+
 #endif /* FLIGHT_H_ */

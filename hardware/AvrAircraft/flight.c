@@ -29,8 +29,11 @@ void initializeFlightControls()
 	TCCR1B = _BV(WGM12) | _BV(WGM13) | _BV(CS11) | _BV(CS10);
 	ICR1 = 157;
 
-	DDRB |= _BV(PORTB1);
-	
+	DDRB |= _BV(PORTB1);	
+}
+
+void calibrate()
+{
 	setPwm(&throttlePwm, 100);
 	
 	red(OFF);
@@ -40,7 +43,7 @@ void initializeFlightControls()
 	
 	red(ON);
 	yellow(ON);
-		
+	
 	_delay_sec(2);
 	
 	yellow(OFF);
@@ -49,7 +52,7 @@ void initializeFlightControls()
 	_delay_sec(2);
 	
 	red(OFF);
-	yellow(OFF);
+	yellow(OFF);	
 }
 
 void setFlightParams(uint8_t throttle, uint8_t elevator, uint8_t rudder)
